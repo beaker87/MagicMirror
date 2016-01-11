@@ -1,4 +1,4 @@
-MagicMirror - Ben
+MagicMirror - Ben Test
 ===========
 
 ##Introduction

@@ -12,7 +12,7 @@ var time = {
 time.updateTime = function () {
 
 	var _now = moment(),
-		_date = _now.format('dddd, LL');
+		_date = _now.format('dddd Do MMMM');
 
 	$(this.dateLocation).html(_date);
 	$(this.timeLocation).html(_now.format(this._timeFormat+':mm[<span class="sec">]ss[</span>]'));

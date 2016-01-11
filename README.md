@@ -1,4 +1,4 @@
-MagicMirror
+MagicMirror - Ben
 ===========
 
 ##Introduction

@@ -44,3 +44,4 @@ var config = {
     	feed: 'http://feeds.bbci.co.uk/news/rss.xml?edition=uk'
     }
 }
+

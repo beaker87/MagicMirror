@@ -72,12 +72,22 @@ function initMap()
 	  	animation: google.maps.Animation.DROP,
 	  	title: 'Work',
 		label: 'W'		  	
-	  });
+	  });		  
 }
+</script>
 
-    </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBZHzo_XmB1Ewf06o7cesEWCQHmMkpQySc&callback=initMap&signed_in=true" async defer>
-    </script>
+<script type="text/javascript"> 
+    var gmapLink = "https://maps.googleapis.com/maps/api/js?key=" + config.map.apikey + "&callback=initMap&signed_in=true";
+    var JSElement = document.createElement('script');
+    JSElement.src = gmapLink;
+    //JSElement.onload = OnceLoaded;
+    document.getElementsByTagName('head')[0].appendChild(JSElement);
+
+    /*function OnceLoaded() {
+        // Once loaded.. load other JS or CSS or call objects of version.js
+    }*/
+</script>
+
 
 
 </body>

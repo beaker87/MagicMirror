@@ -15,9 +15,9 @@
 
 	<div class="top left"><div class="date small dimmed"></div><div class="time"></div><div class="calendar xxsmall"></div></div>
 	<div class="top right"><div class="windsun small dimmed"></div><div class="temp"></div><div class="forecast small dimmed"></div></div>
-	<div class="center-ver center-hor"><div id="map" style="width:600px; height:600px;"></div></div>
+	<div class="bottom left-zero"><div id="map" style="width:600px; height:600px;"></div></div>
 	<div class="lower-third center-hor"><div class="compliment light"></div></div>
-	<div class="bottom center-hor"><div class="news medium"></div></div>
+	<!--<div class="bottom center-hor"><div class="news medium"></div></div>-->
 
 <script src="js/jquery.js"></script>
 <script src="js/jquery.feedToJSON.js"></script>
@@ -30,12 +30,11 @@
 <script src="js/compliments/compliments.js" type="text/javascript"></script>
 <script src="js/weather/weather.js" type="text/javascript"></script>
 <script src="js/time/time.js" type="text/javascript"></script>
-<script src="js/news/news.js" type="text/javascript"></script>
+<!--<script src="js/news/news.js" type="text/javascript"></script>-->
 <script src="js/main.js?nocache=<?php echo md5(microtime()) ?>"></script>
 <!-- <script src="js/socket.io.min.js"></script> -->
-		
-		
-		<script>
+
+<script>
 		
 function initMap()
 {
@@ -77,18 +76,22 @@ function initMap()
 </script>
 
 <script type="text/javascript"> 
-    var gmapLink = "https://maps.googleapis.com/maps/api/js?key=" + config.map.apikey + "&callback=initMap&signed_in=true";
-    var JSElement = document.createElement('script');
-    JSElement.src = gmapLink;
-    //JSElement.onload = OnceLoaded;
-    document.getElementsByTagName('head')[0].appendChild(JSElement);
 
-    /*function OnceLoaded() {
-        // Once loaded.. load other JS or CSS or call objects of version.js
-    }*/
+	var ghour = moment().hour();
+
+	// Only display google map in the morning
+	if (ghour >= 3 && ghour < 12) {
+    	var gmapLink = "https://maps.googleapis.com/maps/api/js?key=" + config.map.apikey + "&callback=initMap&signed_in=true";
+    	var JSElement = document.createElement('script');
+    	JSElement.src = gmapLink;
+    	//JSElement.onload = OnceLoaded;
+    	document.getElementsByTagName('head')[0].appendChild(JSElement);
+
+    	/*function OnceLoaded() {
+        	// Once loaded.. do something else
+    	}*/
+	}
 </script>
-
-
 
 </body>
 </html>

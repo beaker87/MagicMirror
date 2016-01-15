@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Web Socket Client</title>
+    <meta charset="UTF-8">
+    <script>
+      window.onload = function() {
+        var s = new WebSocket("ws://localhost:9999/");
+        s.onopen = function(e) { alert("opened"); s.send("ready"); }
+        s.onclose = function(e) { alert("closed"); }
+        s.onmessage = function(e)
+        {
+			/* TODO if message == "button 1 pressed" */
+            document.write("Button pressed!<br>");
+        }
+      };
+    </script>
+  </head>
+    <body>
+      <p><b><font size="24">Button Webpage Demo</font></b></p>
+      <div id="holder" style="width:600px; height:300px"></div>
+    </body>
+</html>

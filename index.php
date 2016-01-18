@@ -25,6 +25,7 @@
 			};
 			
 			var jssor_slider1 = new $JssorSlider$('slider1_container', options);
+			var buttonstate = 0;
 					
         		var s = new WebSocket("ws://localhost:9999/");
         		s.onopen = function(e) { /*alert("opened");*/ s.send("ready"); }
@@ -34,8 +35,19 @@
 				/* TODO if message == "button 1 pressed" */
             			alert("Button pressed!");
 
-				/*$('#slider1_container').fadeToBlack(4000);*/
-				jssor_slider1.Pause();
+				if ( buttonstate == 1 )
+				{
+					buttonstate = 0;
+					jssor_slider1.$Play();
+				}
+				else
+				{
+					// Pause
+					/*$('#slider1_container').fadeToBlack(4000);*/
+					jssor_slider1.$Pause();
+
+					buttonstate = 1;
+				}
         		}
       		};
 	</script>

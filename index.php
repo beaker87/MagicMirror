@@ -15,6 +15,7 @@
 			];
 			
 			var options = {
+			    $FillMode: 1,
 			    $AutoPlay: true,
 			    $SlideshowOptions: {
 			            $Class: $JssorSlideshowRunner$,
@@ -137,9 +138,9 @@ function initMap()
 	//}
 </script>
 
-<div id="slider1_container" style="position: relative; top: 0px; left: 0px; width: 800px; height: 600px;">
+<div id="slider1_container" style="position: relative; top: 0px; left: 0px; width: 1920px; height: 1080px;">
     <!-- Slides Container -->
-    <div u="slides" style="cursor: move; position: absolute; overflow: hidden; left: 0px; top: 0px; width: 800px; height: 600px;">
+    <div u="slides" style="cursor: move; position: absolute; overflow: hidden; left: 0px; top: 0px; width: 1920px; height: 1080px;">
 
 <?php
 

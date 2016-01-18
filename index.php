@@ -7,6 +7,37 @@
 	<link rel="stylesheet" type="text/css" href="css/weather-icons.css">
 	<script type="text/javascript">
 		var gitHash = '<?php echo trim(`git rev-parse HEAD`) ?>';
+
+		window.onload = function() {
+
+			var _SlideshowTransitions = [
+				{$Duration:2000,$Opacity:2}
+			];
+			
+			var options = {
+			    $AutoPlay: true,
+			    $SlideshowOptions: {
+			            $Class: $JssorSlideshowRunner$,
+			            $Transitions: _SlideshowTransitions,
+			            $TransitionsOrder: 1,
+			            $ShowLink: true
+			        }
+			};
+			
+			var jssor_slider1 = new $JssorSlider$('slider1_container', options);
+					
+        		var s = new WebSocket("ws://localhost:9999/");
+        		s.onopen = function(e) { /*alert("opened");*/ s.send("ready"); }
+        		s.onclose = function(e) { /*alert("closed");*/ }
+        		s.onmessage = function(e)
+        		{
+				/* TODO if message == "button 1 pressed" */
+            			alert("Button pressed!");
+
+				/*$('#slider1_container').fadeToBlack(4000);*/
+				jssor_slider1.Pause();
+        		}
+      		};
 	</script>
 	<meta name="google" value="notranslate" />
 	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
@@ -33,9 +64,10 @@
 <!--<script src="js/news/news.js" type="text/javascript"></script>-->
 <script src="js/main.js?nocache=<?php echo md5(microtime()) ?>"></script>
 <!-- <script src="js/socket.io.min.js"></script> -->
+<script src="js/jssor.slider.mini.js"></script>
 
 <script>
-		
+
 function initMap()
 {
   var customMapType = new google.maps.StyledMapType([{"featureType":"administrative","elementType":"labels.text.fill","stylers":[{"color":"#444444"}]},{"featureType":"administrative.land_parcel","elementType":"geometry.fill","stylers":[{"visibility":"on"}]},{"featureType":"landscape","elementType":"all","stylers":[{"color":"#f2f2f2"}]},{"featureType":"landscape.man_made","elementType":"geometry.fill","stylers":[{"hue":"#ff0000"}]},{"featureType":"poi","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"poi","elementType":"geometry.fill","stylers":[{"visibility":"on"},{"lightness":"-100"},{"saturation":"-100"},{"gamma":"0.00"}]},{"featureType":"poi.business","elementType":"geometry","stylers":[{"color":"#000000"}]},{"featureType":"poi.government","elementType":"geometry.fill","stylers":[{"color":"#000000"}]},{"featureType":"poi.medical","elementType":"geometry.fill","stylers":[{"color":"#000000"}]},{"featureType":"poi.park","elementType":"geometry.fill","stylers":[{"color":"#000000"}]},{"featureType":"poi.sports_complex","elementType":"geometry.fill","stylers":[{"visibility":"on"},{"color":"#000000"}]},{"featureType":"road","elementType":"all","stylers":[{"saturation":-100},{"lightness":45}]},{"featureType":"road.highway","elementType":"all","stylers":[{"visibility":"simplified"}]},{"featureType":"road.arterial","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"transit","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"water","elementType":"all","stylers":[{"color":"#000000"},{"visibility":"on"}]}],
@@ -80,18 +112,36 @@ function initMap()
 	var ghour = moment().hour();
 
 	// Only display google map in the morning
-	if (ghour >= 3 && ghour < 12) {
-    	var gmapLink = "https://maps.googleapis.com/maps/api/js?key=" + config.map.apikey + "&callback=initMap&signed_in=true";
-    	var JSElement = document.createElement('script');
-    	JSElement.src = gmapLink;
-    	//JSElement.onload = OnceLoaded;
-    	document.getElementsByTagName('head')[0].appendChild(JSElement);
+	//if (ghour >= 3 && ghour < 12) {
+    		var gmapLink = "https://maps.googleapis.com/maps/api/js?key=" + config.map.apikey + "&callback=initMap&signed_in=true";
+    		var JSElement = document.createElement('script');
+    		JSElement.src = gmapLink;
+    		//JSElement.onload = OnceLoaded;
+    		document.getElementsByTagName('head')[0].appendChild(JSElement);
 
-    	/*function OnceLoaded() {
-        	// Once loaded.. do something else
-    	}*/
-	}
+    		/*function OnceLoaded() {
+        		// Once loaded.. do something else
+    		}*/
+	//}
 </script>
+
+<div id="slider1_container" style="position: relative; top: 0px; left: 0px; width: 800px; height: 600px;">
+    <!-- Slides Container -->
+    <div u="slides" style="cursor: move; position: absolute; overflow: hidden; left: 0px; top: 0px; width: 800px; height: 600px;">
+
+<?php
+
+//$files = glob('uploads/*');
+
+foreach (glob("uploads/*") as $filename) {
+    //echo "$filename size " . filesize($filename) . "\n";
+	echo "<div><img u=\"image\" src=\"$filename\" /></div>\n";
+}
+
+?>      
+
+    </div>
+</div>
 
 </body>
 </html>

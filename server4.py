@@ -78,7 +78,7 @@ class WebSocket(object):
             recv = self.decodeCharArray(data)
 
             m_msg = ''.join(recv).strip()
-            print( "BEN: Message we got was %s" % m_msg)
+            print( "Message we got was %s" % m_msg)
 
             if m_msg == "ready":
                 print( "WEBPAGE SAID IT WAS READY" )
@@ -86,12 +86,12 @@ class WebSocket(object):
                 
 
             # Send our reply
-            logging.debug("BEN SENDING")
+            logging.debug("Sending message...")
             self.sendMessage(''.join(recv).strip());
 
     def button_handler(self, BUTTON_IN):
         tx_msg = "Button pressed"
-		print("Ben: Button pressed!")
+        print("Button pressed!")
         self.sendMessage(''.join(tx_msg).strip());
 
     # Stolen from http://www.cs.rpi.edu/~goldsd/docs/spring2012-csci4220/websocket-py.txt

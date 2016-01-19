@@ -25,11 +25,11 @@ MAGICGUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 TEXT = 0x01
 BINARY = 0x02
 
-BUTTON_IN = 17
+BUTTON_A_IN = 17
 
 #set up pin 17 as an input
 gpio.setmode(gpio.BCM)
-gpio.setup(BUTTON_IN, gpio.IN)
+gpio.setup(BUTTON_A_IN, gpio.IN)
 
 
 # WebSocket implementation
@@ -81,15 +81,16 @@ class WebSocket(object):
             print( "Message we got was %s" % m_msg)
 
             if m_msg == "ready":
-                print( "WEBPAGE SAID IT WAS READY" )
-                gpio.add_event_detect(BUTTON_IN, gpio.RISING, callback=self.button_handler)
-                
+                print( "Webpage is ready - adding event for button interrupt" )
+                gpio.add_event_detect(BUTTON_A_IN, gpio.RISING, callback=self.button_handler)
 
-            # Send our reply
-            logging.debug("Sending message...")
-            self.sendMessage(''.join(recv).strip());
 
-    def button_handler(self, BUTTON_IN):
+            #else:
+                # Send our reply
+            #    logging.debug("Sending message...")
+            #    self.sendMessage(''.join(recv).strip());
+
+    def button_handler(self, BUTTON_A_IN):
         tx_msg = "Button pressed"
         print("Button pressed!")
         self.sendMessage(''.join(tx_msg).strip());

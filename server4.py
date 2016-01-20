@@ -26,10 +26,12 @@ TEXT = 0x01
 BINARY = 0x02
 
 BUTTON_A_IN = 17
+BUTTON_B_IN = 27
 
-#set up pin 17 as an input
+#set up pins 17 & 21 as inputs
 gpio.setmode(gpio.BCM)
 gpio.setup(BUTTON_A_IN, gpio.IN)
+gpio.setup(BUTTON_B_IN, gpio.IN)
 
 
 # WebSocket implementation
@@ -82,18 +84,23 @@ class WebSocket(object):
 
             if m_msg == "ready":
                 print( "Webpage is ready - adding event for button interrupt" )
-                gpio.add_event_detect(BUTTON_A_IN, gpio.RISING, callback=self.button_handler)
-
+                gpio.add_event_detect(BUTTON_A_IN, gpio.RISING, callback=self.buttona_handler)
+                gpio.add_event_detect(BUTTON_B_IN, gpio.RISING, callback=self.buttonb_handler)
 
             #else:
                 # Send our reply
             #    logging.debug("Sending message...")
             #    self.sendMessage(''.join(recv).strip());
 
-    def button_handler(self, BUTTON_A_IN):
-        tx_msg = "Button pressed"
-        print("Button pressed!")
-        self.sendMessage(''.join(tx_msg).strip());
+    def buttona_handler(self, BUTTON_A_IN):
+        tx_msg = "Button A pressed"
+        print("Button A pressed!")
+        #self.sendMessage(''.join(tx_msg).strip());
+
+    def buttonb_handler(self, BUTTON_B_IN):
+        tx_msg = "Button B pressed"
+        print("Button B pressed!")
+        #self.sendMessage(''.join(tx_msg).strip());
 
     # Stolen from http://www.cs.rpi.edu/~goldsd/docs/spring2012-csci4220/websocket-py.txt
     def sendMessage(self, s):

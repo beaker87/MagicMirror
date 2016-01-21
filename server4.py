@@ -1,4 +1,5 @@
 import time
+from time import sleep
 import struct
 import socket
 import hashlib
@@ -10,6 +11,7 @@ import logging
 from threading import Thread
 import signal
 import RPi.GPIO as gpio
+import picamera
 
 # Simple WebSocket server implementation. Handshakes with the client then echos back everything
 # that is received. Has no dependencies (doesn't require Twisted etc) and works with the RFC6455
@@ -33,6 +35,8 @@ gpio.setmode(gpio.BCM)
 gpio.setup(BUTTON_A_IN, gpio.IN)
 gpio.setup(BUTTON_B_IN, gpio.IN)
 
+# set up camera
+camera = picamera.PiCamera()
 
 # WebSocket implementation
 class WebSocket(object):
@@ -86,8 +90,8 @@ class WebSocket(object):
 
             if m_msg == "ready":
                 print( "Webpage is ready - adding events for button interrupt" )
-                self.button_a_last_event = time.time() - 1
-                self.button_b_last_event = time.time() - 1
+                self.button_a_last_event = int(time.time()) - 1
+                self.button_b_last_event = int(time.time()) - 1
                 gpio.add_event_detect(BUTTON_A_IN, gpio.RISING, callback=self.buttona_handler)
                 gpio.add_event_detect(BUTTON_B_IN, gpio.RISING, callback=self.buttonb_handler)
             #else:
@@ -96,20 +100,29 @@ class WebSocket(object):
             #    self.sendMessage(''.join(recv).strip());
 
     def buttona_handler(self, BUTTON_A_IN):
-        ts = time.time()
-        if not self.button_a_last_event == ts:
+        ts = int(time.time())
+        if self.button_a_last_event != ts:
             self.button_a_last_event = ts
             tx_msg = "BUT_A"
             print("Button A pressed!")
-            self.sendMessage(''.join(tx_msg).strip());
+            #self.sendMessage(''.join(tx_msg).strip());
 
     def buttonb_handler(self, BUTTON_B_IN):
-        ts = time.time()
-        if not self.button_b_last_event == ts:
+        ts = int(time.time())
+        if self.button_b_last_event != ts:
             self.button_b_last_event = ts
             tx_msg = "BUT_B"
-            print("Button B pressed!")
-            self.sendMessage(''.join(tx_msg).strip());
+            print("Button B pressed - taking picture in 3...")
+            sleep(1)
+            print("2...")
+            sleep(1)
+            print("1...")
+            sleep(1)
+            
+            camera.capture('bentestcam.jpg')
+            print("DONE")
+            
+            #self.sendMessage(''.join(tx_msg).strip());
 
     # Stolen from http://www.cs.rpi.edu/~goldsd/docs/spring2012-csci4220/websocket-py.txt
     def sendMessage(self, s):

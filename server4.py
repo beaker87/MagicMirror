@@ -28,7 +28,7 @@ BINARY = 0x02
 BUTTON_A_IN = 17
 BUTTON_B_IN = 27
 
-#set up pins 17 & 21 as inputs
+#set up pins 17 & 27 as inputs
 gpio.setmode(gpio.BCM)
 gpio.setup(BUTTON_A_IN, gpio.IN)
 gpio.setup(BUTTON_B_IN, gpio.IN)
@@ -56,6 +56,8 @@ class WebSocket(object):
         self.handshaken = False
         self.header = ""
         self.data = ""
+        self.button_a_last_event = 0
+        self.button_b_last_event = 0
 
 
     # Serve this client
@@ -83,24 +85,31 @@ class WebSocket(object):
             print( "Message we got was %s" % m_msg)
 
             if m_msg == "ready":
-                print( "Webpage is ready - adding event for button interrupt" )
+                print( "Webpage is ready - adding events for button interrupt" )
+                self.button_a_last_event = time.time() - 1
+                self.button_b_last_event = time.time() - 1
                 gpio.add_event_detect(BUTTON_A_IN, gpio.RISING, callback=self.buttona_handler)
                 gpio.add_event_detect(BUTTON_B_IN, gpio.RISING, callback=self.buttonb_handler)
-
             #else:
                 # Send our reply
             #    logging.debug("Sending message...")
             #    self.sendMessage(''.join(recv).strip());
 
     def buttona_handler(self, BUTTON_A_IN):
-        tx_msg = "Button A pressed"
-        print("Button A pressed!")
-        #self.sendMessage(''.join(tx_msg).strip());
+        ts = time.time()
+        if not self.button_a_last_event == ts:
+            self.button_a_last_event = ts
+            tx_msg = "BUT_A"
+            print("Button A pressed!")
+            self.sendMessage(''.join(tx_msg).strip());
 
     def buttonb_handler(self, BUTTON_B_IN):
-        tx_msg = "Button B pressed"
-        print("Button B pressed!")
-        #self.sendMessage(''.join(tx_msg).strip());
+        ts = time.time()
+        if not self.button_b_last_event == ts:
+            self.button_b_last_event = ts
+            tx_msg = "BUT_B"
+            print("Button B pressed!")
+            self.sendMessage(''.join(tx_msg).strip());
 
     # Stolen from http://www.cs.rpi.edu/~goldsd/docs/spring2012-csci4220/websocket-py.txt
     def sendMessage(self, s):

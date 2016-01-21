@@ -28,29 +28,37 @@
 			var jssor_slider1 = new $JssorSlider$('slider1_container', options);
 			var buttonstate = 0;
 					
-        		var s = new WebSocket("ws://localhost:9999/");
-        		s.onopen = function(e) { /*alert("opened");*/ s.send("ready"); }
-        		s.onclose = function(e) { /*alert("closed");*/ }
-        		s.onmessage = function(e)
-        		{
-				/* TODO if message == "button 1 pressed" */
-            			alert("Button pressed!");
-
-				if ( buttonstate == 1 )
-				{
-					buttonstate = 0;
-					jssor_slider1.$Play();
+			var s = new WebSocket("ws://localhost:9999/");
+			s.onopen = function(e) { /*alert("opened");*/ s.send("ready"); }
+			s.onclose = function(e) { /*alert("closed");*/ }
+			s.onmessage = function(e)
+			{
+					var rx_msg = e.data;
+					alert("Button pressed! Msg: " + rx_msg);
+					
+					if ( rx_msg == "BUT_A" )
+					{
+						// Button A pressed - fade pictures and show dashboard
+						if ( buttonstate == 1 )
+						{
+							buttonstate = 0;
+							jssor_slider1.$Play();
+						}
+						else
+						{
+							// Pause
+							/*$('#slider1_container').fadeToBlack(4000);*/
+							jssor_slider1.$Pause();
+							buttonstate = 1;
+						}
+					}
+					
+					if ( rx_msg == "BUT_B" )
+					{
+						// Button B pressed - camera preview / snapshot
+					}
 				}
-				else
-				{
-					// Pause
-					/*$('#slider1_container').fadeToBlack(4000);*/
-					jssor_slider1.$Pause();
-
-					buttonstate = 1;
-				}
-        		}
-      		};
+			};
 	</script>
 	<meta name="google" value="notranslate" />
 	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />

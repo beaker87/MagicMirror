@@ -12,6 +12,7 @@ from threading import Thread
 import signal
 import RPi.GPIO as gpio
 import picamera
+import Queue
 
 # Simple WebSocket server implementation. Handshakes with the client then echos back everything
 # that is received. Has no dependencies (doesn't require Twisted etc) and works with the RFC6455
@@ -35,8 +36,23 @@ gpio.setmode(gpio.BCM)
 gpio.setup(BUTTON_A_IN, gpio.IN)
 gpio.setup(BUTTON_B_IN, gpio.IN)
 
+button_a_last_event = int(time.time()) - 1
+button_b_last_event = int(time.time()) - 1
+
 # set up camera
-camera = picamera.PiCamera()
+#camera = picamera.PiCamera()
+
+# set up queue
+queue = Queue.Queue()
+
+# Button handler thread
+#def ButtonHandler():
+#	global run
+#	print("Button thread started!")
+#	while run:
+#		print("run is %r" % run )
+#		sleep(5)
+#		q.put("Ben Test Q Msg")
 
 # WebSocket implementation
 class WebSocket(object):
@@ -54,18 +70,19 @@ class WebSocket(object):
 
 
     # Constructor
-    def __init__(self, client, server):
+    def __init__(self, client, server, msgqueue):
         self.client = client
         self.server = server
         self.handshaken = False
         self.header = ""
         self.data = ""
-        self.button_a_last_event = 0
-        self.button_b_last_event = 0
+        self.msgqueue = msgqueue
 
 
     # Serve this client
     def feed(self, data):
+    
+        self.running = True
     
         # If we haven't handshaken yet
         if not self.handshaken:
@@ -89,39 +106,25 @@ class WebSocket(object):
             print( "Message we got was %s" % m_msg)
 
             if m_msg == "ready":
-                print( "Webpage is ready - adding events for button interrupt" )
-                self.button_a_last_event = int(time.time()) - 1
-                self.button_b_last_event = int(time.time()) - 1
-                gpio.add_event_detect(BUTTON_A_IN, gpio.RISING, callback=self.buttona_handler)
-                gpio.add_event_detect(BUTTON_B_IN, gpio.RISING, callback=self.buttonb_handler)
+                print( "Webpage is ready, waiting for external events" )
+                
+                while self.running:
+                    #try:
+                    mmsg = self.msgqueue.get() #(True, 5)
+                    print( "Ben got thread message: {0} (self.running is {1})".format(mmsg, self.running ))
+                    self.msgqueue.task_done()
+                    #except:
+                    #    print("Timed out")
+                    #    pass                       						
+
+                print("Done with socket")					
+
+	
             #else:
                 # Send our reply
             #    logging.debug("Sending message...")
             #    self.sendMessage(''.join(recv).strip());
 
-    def buttona_handler(self, BUTTON_A_IN):
-        ts = int(time.time())
-        if self.button_a_last_event != ts:
-            self.button_a_last_event = ts
-            tx_msg = "BUT_A"
-            print("Button A pressed!")
-            #self.sendMessage(''.join(tx_msg).strip());
-
-    def buttonb_handler(self, BUTTON_B_IN):
-        ts = int(time.time())
-        if self.button_b_last_event != ts:
-            self.button_b_last_event = ts
-            tx_msg = "BUT_B"
-            print("Button B pressed - taking picture in 3...")
-            sleep(1)
-            print("2...")
-            sleep(1)
-            print("1...")
-            sleep(1)
-            
-            camera.capture('bentestcam.jpg')
-            print("DONE")
-            
             #self.sendMessage(''.join(tx_msg).strip());
 
     # Stolen from http://www.cs.rpi.edu/~goldsd/docs/spring2012-csci4220/websocket-py.txt
@@ -263,7 +266,7 @@ class WebSocketServer(object):
         self.listeners = [self.socket]
 
     # Listen for requests
-    def listen(self, backlog=5):
+    def listen(self, backlog, msgqueue):
 
         self.socket.listen(backlog)
         logging.info("Listening on %s" % self.port)
@@ -280,7 +283,7 @@ class WebSocketServer(object):
                     client, address = self.socket.accept()
                     fileno = client.fileno()
                     self.listeners.append(fileno)
-                    self.connections[fileno] = self.cls(client, self)
+                    self.connections[fileno] = self.cls(client, self, msgqueue)
                 else:
                     logging.debug("Client ready for reading %s" % ready)
                     client = self.connections[ready].client
@@ -302,20 +305,59 @@ class WebSocketServer(object):
                         conn.close()
                     self.running = False
 
+        print("Telling cls to stop")
+        self.cls.running = False
+
+def buttona_handler(BUTTON_A_IN):
+    global button_a_last_event
+    ts = int(time.time())
+    if button_a_last_event != ts:
+        button_a_last_event = ts
+        tx_msg = "BUT_A"
+        print("Button A pressed!")
+        queue.put(tx_msg)
+        #self.sendMessage(''.join(tx_msg).strip());
+
+def buttonb_handler(BUTTON_B_IN):
+    global button_b_last_event
+    ts = int(time.time())
+    if button_b_last_event != ts:
+        button_b_last_event = ts
+        tx_msg = "BUT_B"
+        print("Button B pressed - taking picture in 3...")
+        sleep(1)
+        print("2...")
+        sleep(1)
+        print("1...")
+        sleep(1)
+            
+        camera.capture('bentestcam.jpg')
+        print("DONE")   
+
+
 # Entry point
 if __name__ == "__main__":
 
     logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
     server = WebSocketServer("", 9999, WebSocket)
-    server_thread = Thread(target=server.listen, args=[5])
+    server_thread = Thread(target=server.listen, args=[5,queue])
+    print("Starting main thread")
+    server_thread.daemon = True
     server_thread.start()
 
+    gpio.add_event_detect(BUTTON_A_IN, gpio.RISING, callback=buttona_handler)
+    #gpio.add_event_detect(BUTTON_B_IN, gpio.RISING, callback=buttonb_handler)
+    
     # Add SIGINT handler for killing the threads
     def signal_handler(signal, frame):
         logging.info("Caught Ctrl+C, shutting down...")
+        queue.join()
         server.running = False
+        print("Terminating cls")
+        server.cls.running = False
         print( "Cleaning up GPIO..." )
         gpio.cleanup()
+        print("Exiting")
         sys.exit()
     signal.signal(signal.SIGINT, signal_handler)
 

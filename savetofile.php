@@ -7,7 +7,9 @@ if (isset($_FILES['myFile'])) {
 
     $timestamp = time();
 
-    move_uploaded_file($_FILES['myFile']['tmp_name'], "uploads/" . $_FILES['myFile']['name'] . $timestamp);
-    echo 'successful';
+    $filename = $_FILES['myFile']['name'] . $timestamp;
+
+    move_uploaded_file($_FILES['myFile']['tmp_name'], "uploads/" . $filename);
+    echo 'success ' . $filename;
 }
 ?>

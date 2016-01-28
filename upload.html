@@ -49,8 +49,22 @@
  
       function uploadComplete(evt) {
         /* This event is raised when the server send back a response */
+		// success <img_name>
         alert("Ben got response: " + evt.target.responseText);
-      }
+		
+		String[] splitStr = evt.target.responseText.split("\\s+");
+		
+		if( splitStr[0] == "success" )
+		{
+			var s = new WebSocket("ws://localhost:9998/");
+			s.onopen = function(e) { /*alert("opened");*/ s.send("image_upload " + splitStr[1]); }
+			s.onclose = function(e) { alert("closed"); }
+			s.onmessage = function(e)
+			{
+				alert("Got message: " + e.data);
+			}
+		};
+	}
  
       function uploadFailed(evt) {
          alert("There was an error attempting to upload the file.");

@@ -1,5 +1,4 @@
 import time
-from time import sleep
 import struct
 import socket
 import hashlib
@@ -39,9 +38,6 @@ gpio.setup(BUTTON_B_IN, gpio.IN)
 button_a_last_event = int(time.time()) - 1
 button_b_last_event = int(time.time()) - 1
 
-# set up camera
-#camera = picamera.PiCamera()
-
 # set up queue
 queue = Queue.Queue()
 
@@ -51,7 +47,7 @@ queue = Queue.Queue()
 #	print("Button thread started!")
 #	while run:
 #		print("run is %r" % run )
-#		sleep(5)
+#		time.sleep(5)
 #		q.put("Ben Test Q Msg")
 
 # WebSocket implementation
@@ -105,20 +101,60 @@ class WebSocket(object):
             m_msg = ''.join(recv).strip()
             print( "Message we got was %s" % m_msg)
 
-            if m_msg == "ready":
+            tkns = m_msg.split()
+
+            if tkns[0] == "ready":
                 print( "Webpage is ready, waiting for external events" )
                 
                 while self.running:
-                    #try:
-                    mmsg = self.msgqueue.get() #(True, 5)
-                    print( "Ben got thread message: {0} (self.running is {1})".format(mmsg, self.running ))
+                    mmsg = self.msgqueue.get()
+                    print( "WebSocket - got thread message: {0} (self.running is {1})".format(mmsg, self.running ))
+
+                    if mmsg == "BUT_A":
+                        self.sendMessage(''.join(mmsg).strip());
+
+                    if mmsg == "BUT_B":
+                        print("Initialising camera")
+                        # set up camera
+                        camera = picamera.PiCamera()
+
+                        # Take picture
+                        #print("Taking picture in 3...")
+                        #time.sleep(1)
+                        #print("2...")
+                        #time.sleep(1)
+                        #print("1...")
+                        #time.sleep(1)
+
+                        #timestamp = int(time.time())
+                        #filename = 'capture_%d.pdf' % timestamp
+            
+                        #camera.capture(filename)
+
+                        # Do a 10 second camera preview
+                        camera.start_preview()
+                        time.sleep(10)
+                        camera.stop_preview()
+
+                        
+                        print("DONE")
+
+                        # Shutdown camera
+                        camera.close()
+
+                        txmsg = mmsg + filename
+                        
+                        #self.sendMessage(''.join(txmsg).strip());
+
                     self.msgqueue.task_done()
-                    #except:
-                    #    print("Timed out")
-                    #    pass                       						
 
                 print("Done with socket")					
 
+            if tkns[0] == "image_upload":
+
+                print("Image has been uploaded - filename %s" % tkns[1])
+
+                
 	
             #else:
                 # Send our reply
@@ -314,9 +350,8 @@ def buttona_handler(BUTTON_A_IN):
     if button_a_last_event != ts:
         button_a_last_event = ts
         tx_msg = "BUT_A"
-        print("Button A pressed!")
+        print("[handler] Button A pressed!")
         queue.put(tx_msg)
-        #self.sendMessage(''.join(tx_msg).strip());
 
 def buttonb_handler(BUTTON_B_IN):
     global button_b_last_event
@@ -324,23 +359,22 @@ def buttonb_handler(BUTTON_B_IN):
     if button_b_last_event != ts:
         button_b_last_event = ts
         tx_msg = "BUT_B"
-        print("Button B pressed - taking picture in 3...")
-        sleep(1)
-        print("2...")
-        sleep(1)
-        print("1...")
-        sleep(1)
-            
-        camera.capture('bentestcam.jpg')
-        print("DONE")   
-
+        print("[handler] Button B pressed!")
+        queue.put(tx_msg)
 
 # Entry point
 if __name__ == "__main__":
 
     logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
+
+    # Start mirror server
     server = WebSocketServer("", 9999, WebSocket)
     server_thread = Thread(target=server.listen, args=[5,queue])
+
+    # Start upload server
+    upload_server = WebSocketServer("", 9998, WebSocket)
+    upload_server_thread = Thread(target=upload_server.listen, args=[5,queue])
+    
     print("Starting main thread")
     server_thread.daemon = True
     server_thread.start()

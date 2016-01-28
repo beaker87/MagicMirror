@@ -33,7 +33,10 @@
 			s.onclose = function(e) { /*alert("closed");*/ }
 			s.onmessage = function(e)
 			{
-					var rx_msg = e.data;
+					var str = e.data;
+					String[] splitStr = str.split("\\s+");
+					
+					var rx_msg = splitStr[0];
 					alert("Button pressed! Msg: " + rx_msg);
 					
 					if ( rx_msg == "BUT_A" )
@@ -56,6 +59,7 @@
 					if ( rx_msg == "BUT_B" )
 					{
 						// Button B pressed - camera preview / snapshot
+						alert("Camera button pressed! Filename = " + splitStr[1]);
 					}
 				}
 			};

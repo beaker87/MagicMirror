@@ -1,0 +1,64 @@
+@media screen and (max-device-width: 480px){
+    body{
+	    -webkit-text-size-adjust:none;
+        font-family:Helvetica, Arial, Verdana, sans-serif;
+        padding:5px;
+	}
+    div{
+	    clear:both!important;
+        display:block!important;
+        width:100%!important;
+        float:none!important;
+        margin:0!important;
+        padding:0!important;
+	}
+    #nav,#nav li{
+        float:none!important;
+        clear:both!important;
+        margin:0 0 20px 0!important;
+        display:block;
+        padding:0;
+        text-align:left!important;
+        width:100%;
+    }
+    #nav{
+        border:1px solid #ccc;
+        padding:5px;
+        border-radius:5px;
+    }
+    #nav li{
+        margin:0!important;
+    }
+    #nav li a{
+        display:block;
+    }
+	
+	input[type="file"] {
+		display: none;
+	}
+	input[type="button"] {
+		display: none;
+	}
+
+	
+	.custom-camera {
+		background-image: url("images/camera.png");
+		background-repeat: no-repeat;
+		display: inline-block;
+		padding: 6px 12px;
+		cursor: pointer;
+		width: 300px;
+		height: 233px;
+	}
+
+	.custom-upload {
+		background-image: url("images/upload.png");
+		background-repeat: no-repeat;
+		display: inline-block;
+		padding: 6px 12px;
+		cursor: pointer;
+		width: 300px;
+		height: 233px;
+	}
+
+}

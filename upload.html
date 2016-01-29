@@ -61,7 +61,8 @@
 			s.onclose = function(e) { alert("closed"); }
 			s.onmessage = function(e)
 			{
-				alert("Got message: " + e.data);
+				alert("Successfully uploaded image!");
+				location.reload(true); // Force reload from server rather than cache
 			}
 		};
 	}
@@ -74,17 +75,22 @@
         alert("The upload has been canceled by the user or the browser dropped the connection.");
       }
     </script>
+	
+	<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0" />
+	<link href="iphone.css" type="text/css" rel="stylesheet" />
+
 </head>
  
 <body>
   <form id="form1" enctype="multipart/form-data" method="post" action="savetofile.php">
     <div>
-      <label for="fileToUpload">Take or select photo(s)</label><br />
+      <label class="custom-camera" for="fileToUpload">&nbsp;</label><br />
       <input type="file" name="fileToUpload" id="fileToUpload" onchange="fileSelected();" accept="image/*" capture="camera" />
     </div>
     <div id="details"></div>
     <div>
-      <input type="button" onclick="uploadFile()" value="Upload" />
+	  <label class="custom-upload" for="uploadButton">&nbsp;</label>
+      <input type="button" name="uploadButton" value="Upload" onclick="uploadFile()" />
     </div>
     <div id="progress"></div>
   </form>

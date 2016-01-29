@@ -10,6 +10,8 @@
 
 		window.onload = function() {
 
+<?php $displaySlideshow = False; ?>
+<?php if ( $displaySlideshow ) { ?>
 			var _SlideshowTransitions = [
 				{$Duration:2000,$Opacity:2}
 			];
@@ -26,6 +28,7 @@
 			};
 			
 			var jssor_slider1 = new $JssorSlider$('slider1_container', options);
+<?php } ?>
 			var buttonstate = 0;
 					
 			var s = new WebSocket("ws://localhost:9999/");
@@ -45,13 +48,17 @@
 						if ( buttonstate == 1 )
 						{
 							buttonstate = 0;
+<?php if ( $displaySlideshow ) { ?>
 							jssor_slider1.$Play();
+<?php } ?>
 						}
 						else
 						{
 							// Pause
 							/*$('#slider1_container').fadeToBlack(4000);*/
+<?php if ( $displaySlideshow ) { ?>
 							jssor_slider1.$Pause();
+<?php } ?>
 							buttonstate = 1;
 						}
 					}
@@ -127,8 +134,8 @@ function initMap()
 	  	map: map,
 	  	animation: google.maps.Animation.DROP,
 	  	title: 'Work',
-		label: 'W'		  	
-	  });		  
+		label: 'W'
+	  });
 }
 </script>
 
@@ -150,6 +157,7 @@ function initMap()
 	//}
 </script>
 
+<?php if ( $displaySlideshow ) { ?>
 <div id="slider1_container" style="position: relative; top: 0px; left: 0px; width: 1920px; height: 1080px;">
     <!-- Slides Container -->
     <div u="slides" style="cursor: move; position: absolute; overflow: hidden; left: 0px; top: 0px; width: 1920px; height: 1080px;">
@@ -167,6 +175,7 @@ foreach (glob("uploads/*") as $filename) {
 
     </div>
 </div>
+<?php } ?>
 
 </body>
 </html>

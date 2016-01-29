@@ -52,7 +52,7 @@
 		// success <img_name>
         alert("Ben got response: " + evt.target.responseText);
 		
-		String[] splitStr = evt.target.responseText.split("\\s+");
+		var splitStr = evt.target.responseText.split("\\s+");
 		
 		if( splitStr[0] == "success" )
 		{

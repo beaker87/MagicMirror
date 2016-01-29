@@ -34,7 +34,7 @@
 			s.onmessage = function(e)
 			{
 					var str = e.data;
-					String[] splitStr = str.split("\\s+");
+					var splitStr = str.split("\\s+");
 					
 					var rx_msg = splitStr[0];
 					alert("Button pressed! Msg: " + rx_msg);

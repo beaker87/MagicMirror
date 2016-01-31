@@ -3,6 +3,19 @@
 <head>
     <title>Take or select photo(s) and upload</title>
     <script type="text/javascript">
+		
+		/*window.onload = function()
+		{
+			var s = new WebSocket("ws://raspberrypi:9998/");
+			s.onopen = function(e) { alert("opened"); s.send("image_upload testpic.jpg4123"); }
+			s.onclose = function(e) { alert("closed"); }
+			s.onmessage = function(e)
+			{
+				alert("Successfully uploaded image!");
+				location.reload(true); // Force reload from server rather than cache
+			}
+		}*/
+		
       function fileSelected() {
         var count = document.getElementById('fileToUpload').files.length;
               document.getElementById('details').innerHTML = "";
@@ -50,18 +63,21 @@
       function uploadComplete(evt) {
         /* This event is raised when the server send back a response */
 		// success <img_name>
-        alert("Ben got response: " + evt.target.responseText);
+        //alert("Got response: " + evt.target.responseText);
 		
-		var splitStr = evt.target.responseText.split("\\s+");
+		var splitStr = evt.target.responseText.split(" ");
 		
 		if( splitStr[0] == "success" )
 		{
-			var s = new WebSocket("ws://localhost:9998/");
-			s.onopen = function(e) { /*alert("opened");*/ s.send("image_upload " + splitStr[1]); }
-			s.onclose = function(e) { alert("closed"); }
+			var msg = "image_upload " + splitStr[1];
+			
+			//alert("Uploaded " + msg);
+			var s = new WebSocket("ws://raspberrypi:9998/");
+			s.onopen = function(e) { /*alert("opened");*/ s.send(msg); }
+			s.onclose = function(e) { /*alert("closed");*/ }
 			s.onmessage = function(e)
 			{
-				alert("Successfully uploaded image!");
+				//alert("Successfully uploaded image!");
 				location.reload(true); // Force reload from server rather than cache
 			}
 		};

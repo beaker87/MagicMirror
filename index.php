@@ -8,9 +8,80 @@
 	<script type="text/javascript">
 		var gitHash = '<?php echo trim(`git rev-parse HEAD`) ?>';
 
+		function getWidth() {
+		  if (self.innerHeight) {
+			return self.innerWidth;
+		  }
+
+		  if (document.documentElement && document.documentElement.clientHeight) {
+			return document.documentElement.clientWidth;
+		  }
+
+		  if (document.body) {
+			return document.body.clientWidth;
+		  }
+		}
+		
+		function getHeight() {
+		  if (self.innerHeight) {
+			return self.innerHeight;
+		  }
+
+		  if (document.documentElement && document.documentElement.clientHeight) {
+			return document.documentElement.clientHeight;
+		  }
+
+		  if (document.body) {
+			return document.body.clientHeight;
+		  }
+		}
+
+		function loadInterface()
+		{
+			var eventList = [];
+
+			var lastCompliment;
+			var compliment;
+
+			moment.locale(config.lang);
+
+			version.init();
+
+			time.init();
+
+			calendar.init();
+
+			compliments.init();
+
+			weather.init();
+			
+			var ghour = moment().hour();
+
+			// Only display google map in the morning
+			//if (ghour >= 3 && ghour < 12) {
+					var gmapLink = "https://maps.googleapis.com/maps/api/js?key=" + config.map.apikey + "&callback=initMap&signed_in=true";
+					var JSElement = document.createElement('script');
+					JSElement.src = gmapLink;
+					//JSElement.onload = OnceLoaded;
+					document.getElementsByTagName('head')[0].appendChild(JSElement);
+
+					//function OnceLoaded() {
+						// Once loaded.. do something else
+					//}
+			//}	
+			
+			//news.init();
+		}
+
 		window.onload = function() {
 
-<?php $displaySlideshow = False; ?>
+			document.getElementById("slider1_container").style.width=getWidth();
+			document.getElementById("slidesinner").style.width=getWidth();
+			document.getElementById("slider1_container").style.height=getHeight();
+			document.getElementById("slidesinner").style.height=getHeight();
+
+
+<?php $displaySlideshow = True; ?>
 <?php if ( $displaySlideshow ) { ?>
 			var _SlideshowTransitions = [
 				{$Duration:2000,$Opacity:2}
@@ -19,6 +90,7 @@
 			var options = {
 			    $FillMode: 1,
 			    $AutoPlay: true,
+			    $Idle: 30000,
 			    $SlideshowOptions: {
 			            $Class: $JssorSlideshowRunner$,
 			            $Transitions: _SlideshowTransitions,
@@ -37,10 +109,22 @@
 			s.onmessage = function(e)
 			{
 					var str = e.data;
-					var splitStr = str.split("\\s+");
+					var splitStr = str.split(" ");
 					
 					var rx_msg = splitStr[0];
-					alert("Button pressed! Msg: " + rx_msg);
+					//alert("Got message: " + rx_msg);
+					
+					if ( rx_msg == "IMG_UPLOAD" )
+					{
+						//alert("New image uploaded!");
+						var nImg=document.createElement("img");
+						var nImgPath="uploads/" + splitStr[1];
+						nImg.setAttribute('src', nImgPath);
+						nImg.setAttribute('alt', 'na');
+						//nImg.setAttribute('height', '500');
+						//nImg.setAttribute('width', '500');
+						document.body.appendChild(nImg);
+					}
 					
 					if ( rx_msg == "BUT_A" )
 					{
@@ -55,9 +139,14 @@
 						else
 						{
 							// Pause
-							/*$('#slider1_container').fadeToBlack(4000);*/
+							//$('#slider1_container').fadeToBlack(4000);
+							$("#slider1_container").remove();
+							jssor_slider1 = undefined;
+							
+							loadInterface();
+							
 <?php if ( $displaySlideshow ) { ?>
-							jssor_slider1.$Pause();
+							//jssor_slider1.$Pause();
 <?php } ?>
 							buttonstate = 1;
 						}
@@ -138,29 +227,16 @@ function initMap()
 	  });
 }
 </script>
-
+<!--
 <script type="text/javascript"> 
 
-	var ghour = moment().hour();
-
-	// Only display google map in the morning
-	//if (ghour >= 3 && ghour < 12) {
-    		var gmapLink = "https://maps.googleapis.com/maps/api/js?key=" + config.map.apikey + "&callback=initMap&signed_in=true";
-    		var JSElement = document.createElement('script');
-    		JSElement.src = gmapLink;
-    		//JSElement.onload = OnceLoaded;
-    		document.getElementsByTagName('head')[0].appendChild(JSElement);
-
-    		/*function OnceLoaded() {
-        		// Once loaded.. do something else
-    		}*/
-	//}
+	
 </script>
-
+-->
 <?php if ( $displaySlideshow ) { ?>
 <div id="slider1_container" style="position: relative; top: 0px; left: 0px; width: 1920px; height: 1080px;">
     <!-- Slides Container -->
-    <div u="slides" style="cursor: move; position: absolute; overflow: hidden; left: 0px; top: 0px; width: 1920px; height: 1080px;">
+    <div id="slidesinner" u="slides" style="cursor: move; position: absolute; overflow: hidden; left: 0px; top: 0px; width: 1920px; height: 1080px;">
 
 <?php
 

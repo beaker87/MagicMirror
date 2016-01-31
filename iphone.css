@@ -36,9 +36,9 @@
 	input[type="file"] {
 		display: none;
 	}
-	input[type="button"] {
+	/*input[type="button"] {
 		display: none;
-	}
+	}*/
 
 	
 	.custom-camera {

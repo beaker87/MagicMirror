@@ -26,23 +26,6 @@ function roundVal(temp)
 
 jQuery(document).ready(function($) {
 
-	var eventList = [];
-
-	var lastCompliment;
-	var compliment;
-
-    moment.locale(config.lang);
-
-	version.init();
-
-	time.init();
-
-	calendar.init();
-
-	compliments.init();
-
-	weather.init();
-
-	//news.init();
+	// Stuff to load here
 
 });

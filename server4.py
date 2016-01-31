@@ -108,12 +108,21 @@ class WebSocket(object):
                 
                 while self.running:
                     mmsg = self.msgqueue.get()
+                    
+                    cmd = mmsg.split()
+                    
                     print( "WebSocket - got thread message: {0} (self.running is {1})".format(mmsg, self.running ))
+                    
+                    if cmd[0] == "IMG_UPLOAD":
+                        print("New image uploaded: %s" % cmd[1])
+                        txm = ''.join(mmsg).strip()
+                        print("Sending %s to webpage" % txm)
+                        self.sendMessage(txm)
 
-                    if mmsg == "BUT_A":
-                        self.sendMessage(''.join(mmsg).strip());
+                    if cmd[0] == "BUT_A":
+                        self.sendMessage(''.join(mmsg).strip())
 
-                    if mmsg == "BUT_B":
+                    if cmd[0] == "BUT_B":
                         print("Initialising camera")
                         # set up camera
                         camera = picamera.PiCamera()
@@ -126,23 +135,23 @@ class WebSocket(object):
                         #print("1...")
                         #time.sleep(1)
 
-                        #timestamp = int(time.time())
-                        #filename = 'capture_%d.pdf' % timestamp
-            
-                        #camera.capture(filename)
+                        timestamp = int(time.time())
+                        filename = 'capture_%d.jpg' % timestamp
+                        capfilename = "uploads/%s" % filename
 
                         # Do a 10 second camera preview
                         camera.start_preview()
                         time.sleep(10)
+                        camera.capture(capfilename)
                         camera.stop_preview()
-
                         
                         print("DONE")
 
                         # Shutdown camera
                         camera.close()
 
-                        txmsg = mmsg + filename
+                        qmsg = "IMG_UPLOAD %s" % filename
+                        self.msgqueue.put(qmsg)
                         
                         #self.sendMessage(''.join(txmsg).strip());
 
@@ -153,6 +162,8 @@ class WebSocket(object):
             if tkns[0] == "image_upload":
 
                 print("Image has been uploaded - filename %s" % tkns[1])
+                imgmsg = "IMG_UPLOAD %s" % tkns[1]
+                self.msgqueue.put(imgmsg)
 
                 
 	
@@ -379,14 +390,19 @@ if __name__ == "__main__":
     server_thread.daemon = True
     server_thread.start()
 
+    print("Starting upload thread")
+    upload_server_thread.daemon = True
+    upload_server_thread.start()
+
     gpio.add_event_detect(BUTTON_A_IN, gpio.RISING, callback=buttona_handler)
-    #gpio.add_event_detect(BUTTON_B_IN, gpio.RISING, callback=buttonb_handler)
+    gpio.add_event_detect(BUTTON_B_IN, gpio.RISING, callback=buttonb_handler)
     
     # Add SIGINT handler for killing the threads
     def signal_handler(signal, frame):
         logging.info("Caught Ctrl+C, shutting down...")
         queue.join()
         server.running = False
+        upload_server.running = False
         print("Terminating cls")
         server.cls.running = False
         print( "Cleaning up GPIO..." )

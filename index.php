@@ -80,15 +80,15 @@
 		}
 
 		window.onload = function() {
+			
+<?php $displaySlideshow = False; ?>
+<?php if ( $displaySlideshow ) { ?>
 
 			document.getElementById("slider1_container").style.width=getWidth();
 			document.getElementById("slidesinner").style.width=getWidth();
 			document.getElementById("slider1_container").style.height=getHeight();
 			document.getElementById("slidesinner").style.height=getHeight();
 
-
-<?php $displaySlideshow = True; ?>
-<?php if ( $displaySlideshow ) { ?>
 			var _SlideshowTransitions = [
 				{$Duration:2000,$Opacity:2}
 			];
@@ -132,14 +132,6 @@
 								}
 							]
 						);
-						//alert("New image uploaded!");
-						//var nImg=document.createElement("img");
-						//var nImgPath="uploads/" + splitStr[1];
-						//nImg.setAttribute('src', nImgPath);
-						//nImg.setAttribute('alt', 'na');
-						//nImg.setAttribute('height', '500');
-						//nImg.setAttribute('width', '500');
-						//document.body.appendChild(nImg);
 					}
 					
 					if ( rx_msg == "BUT_A" )

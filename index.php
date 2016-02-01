@@ -5,6 +5,12 @@
 		<?php include('css/main.css') ?>
 	</style>
 	<link rel="stylesheet" type="text/css" href="css/weather-icons.css">
+	
+	<script src="js/jquery.js"></script>
+
+	<script type="text/javascript" src="js/jquery.fancybox.pack.js?v=2.1.5"></script>
+	<link rel="stylesheet" type="text/css" href="css/jquery.fancybox.css?v=2.1.5" media="screen" />
+	
 	<script type="text/javascript">
 		var gitHash = '<?php echo trim(`git rev-parse HEAD`) ?>';
 
@@ -116,14 +122,24 @@
 					
 					if ( rx_msg == "IMG_UPLOAD" )
 					{
-						//alert("New image uploaded!");
-						var nImg=document.createElement("img");
 						var nImgPath="uploads/" + splitStr[1];
-						nImg.setAttribute('src', nImgPath);
-						nImg.setAttribute('alt', 'na');
+						//$.fancybox.open('3_b.jpg');
+						$.fancybox.open([
+								{
+									href : nImgPath,
+									title : 'New Picture!',
+									closeClick : true
+								}
+							]
+						);
+						//alert("New image uploaded!");
+						//var nImg=document.createElement("img");
+						//var nImgPath="uploads/" + splitStr[1];
+						//nImg.setAttribute('src', nImgPath);
+						//nImg.setAttribute('alt', 'na');
 						//nImg.setAttribute('height', '500');
 						//nImg.setAttribute('width', '500');
-						document.body.appendChild(nImg);
+						//document.body.appendChild(nImg);
 					}
 					
 					if ( rx_msg == "BUT_A" )
@@ -171,7 +187,6 @@
 	<div class="lower-third center-hor"><div class="compliment light"></div></div>
 	<!--<div class="bottom center-hor"><div class="news medium"></div></div>-->
 
-<script src="js/jquery.js"></script>
 <script src="js/jquery.feedToJSON.js"></script>
 <script src="js/ical_parser.js"></script>
 <script src="js/moment-with-locales.min.js"></script>

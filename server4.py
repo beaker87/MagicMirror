@@ -119,6 +119,11 @@ class WebSocket(object):
                         print("Sending %s to webpage" % txm)
                         self.sendMessage(txm)
 
+                    if cmd[0] == "DESTROY_IMAGE":
+                        print("Request to destroy image: %s" % cmd[1])
+                        print("TODO destroy it!")
+                        # TODO delete image. Could sleep for a sec before deleting it, in case the webpage didn't load it yet (unlikely)
+
                     if cmd[0] == "BUT_A":
                         self.sendMessage(''.join(mmsg).strip())
 

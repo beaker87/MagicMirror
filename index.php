@@ -78,6 +78,11 @@
 			
 			//news.init();
 		}
+		
+		function closeNewImagePopup()
+		{
+			$.fancybox.close();
+		}
 
 		window.onload = function() {
 			
@@ -127,11 +132,18 @@
 						$.fancybox.open([
 								{
 									href : nImgPath,
-									title : 'New Picture!',
-									closeClick : true
+									title : 'New Picture Added!',
+									closeClick : false
 								}
 							]
 						);
+						
+						// Close the popup again after 5 secs
+						setTimeout(closeNewImagePopup, 5000);
+						
+						// Destroy the preview image
+						var tx_msg = "DESTROY_IMAGE " + splitStr[1];
+						s.send(tx_msg);
 					}
 					
 					if ( rx_msg == "BUT_A" )

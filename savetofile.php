@@ -17,16 +17,16 @@ if (isset($_FILES['myFile'])) {
 
 	$im = new Imagick($tmp_filename);
 
-	// change format to jpg
+	// Change format to jpg
 	//$im->setImageFormat( "jpg" );
-	
 	$im->setImageColorspace(255); // TODO might not be needed?
 	$im->setCompression(Imagick::COMPRESSION_JPEG); 
 	$im->setCompressionQuality(90); // TODO set accordingly (in conjunction with blur setting)
 	$im->setImageFormat('jpeg'); 
 	
 	// TODO proper size, and blur setting. Also try FILTER_CATROM (similar to LANCZOS but much faster)
-	$im->resizeImage(320,240,Imagick::FILTER_LANCZOS,1, true);
+	// TODO disable upscaling
+	$im->resizeImage(1080,1920,Imagick::FILTER_LANCZOS,1, true);
 	
 	// overwrite tmp file
 	$im->writeImage($tmp_filename); // TODO if this doesn't work, can we just send output to $destfilename below?
@@ -36,12 +36,23 @@ if (isset($_FILES['myFile'])) {
 
 	// Set up dest filename (image_timestamp.jpg)
 	$filename = $path_parts['filename'] . "_" . $timestamp . ".jpg"; // . $path_parts['extension'];
+	$thumb_filename = $path_parts['filename'] . "_" . $timestamp . "_thumb.jpg";
 	$destfilename = "uploads/" . $filename;
+	$thumb_destfilename = "uploads/" . $thumb_filename;
 
 	// move tmp file to new destination (uploads/image_t
 	move_uploaded_file($_FILES['myFile']['tmp_name'], $destfilename);
 
-	echo 'success ' . $filename;
+	// Create thumb
+	$thumb = new Imagick($destfilename);
+	// TODO proper size, and blur setting. Also try FILTER_CATROM (similar to LANCZOS but much faster)
+	// TODO disable upscaling
+	$thumb->resizeImage(320,240,Imagick::FILTER_LANCZOS,1, true);
+	$thumb->writeImage($thumb_filename);
+	$thumb->clear(); // TODO remove?
+	$thumb->destroy();
+	
+	echo 'success ' . $thumb_filename; // Send thumb filename to server script
 	
 	
 	/*

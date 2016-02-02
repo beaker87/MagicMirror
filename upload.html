@@ -49,6 +49,45 @@
         xhr.open("POST", "savetofile.php");
         xhr.send(fd);
       }
+      
+      function resizeImage(imgname)
+      {
+		var fd = new FormData();
+		fd.append('myFile', imgname);
+ 
+        var xhr = new XMLHttpRequest();
+        //xhr.upload.addEventListener("progress", resizeProgress, false);
+        xhr.addEventListener("load", resizeComplete, false);
+        //xhr.addEventListener("error", resizeFailed, false);
+        //xhr.addEventListener("abort", resizeCanceled, false);
+        xhr.open("POST", "doimage.php");
+        xhr.send(fd); 
+	  }
+	  
+	  function resizeComplete(evt) {
+        /* This event is raised when the server send back a response */
+		// success <img_name>
+        //alert("Got response: " + evt.target.responseText);
+		
+		var splitStr = evt.target.responseText.split(" ");
+		
+		if( splitStr[0] == "success" )
+		{
+			var msg = "image_upload " + splitStr[1];
+					
+			//alert("Uploaded " + msg);
+			var s = new WebSocket("ws://raspberrypi:9998/");
+			s.onopen = function(e) { /*alert("opened");*/ s.send(msg); }
+			s.onclose = function(e) { /*alert("closed");*/ }
+			s.onmessage = function(e)
+			{
+				//alert("Successfully uploaded image!");
+				
+				location.reload(true); // Force reload from server rather than cache
+			}
+		}
+	}
+
 
       function uploadProgress(evt) {
         if (evt.lengthComputable) {
@@ -69,18 +108,9 @@
 		
 		if( splitStr[0] == "success" )
 		{
-			var msg = "image_upload " + splitStr[1];
-			
-			//alert("Uploaded " + msg);
-			var s = new WebSocket("ws://raspberrypi:9998/");
-			s.onopen = function(e) { /*alert("opened");*/ s.send(msg); }
-			s.onclose = function(e) { /*alert("closed");*/ }
-			s.onmessage = function(e)
-			{
-				//alert("Successfully uploaded image!");
-				location.reload(true); // Force reload from server rather than cache
-			}
-		};
+			// Resize image and create thumb
+			resizeImage( splitStr[1] );	
+		}
 	}
  
       function uploadFailed(evt) {

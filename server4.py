@@ -12,6 +12,9 @@ import signal
 import RPi.GPIO as gpio
 import picamera
 import Queue
+import os
+from pwd import getpwnam
+#import os,sys
 
 # Simple WebSocket server implementation. Handshakes with the client then echos back everything
 # that is received. Has no dependencies (doesn't require Twisted etc) and works with the RFC6455
@@ -118,11 +121,12 @@ class WebSocket(object):
                         txm = ''.join(mmsg).strip()
                         print("Sending %s to webpage" % txm)
                         self.sendMessage(txm)
-
-                    if cmd[0] == "DESTROY_IMAGE":
-                        print("Request to destroy image: %s" % cmd[1])
-                        print("TODO destroy it!")
-                        # TODO delete image. Could sleep for a sec before deleting it, in case the webpage didn't load it yet (unlikely)
+                        
+                        imgtodel = "uploads/%s" % cmd[1]
+                        
+                        time.sleep(5)
+                        # Delete image
+                        os.remove( imgtodel )
 
                     if cmd[0] == "BUT_A":
                         self.sendMessage(''.join(mmsg).strip())
@@ -155,6 +159,10 @@ class WebSocket(object):
                         # Shutdown camera
                         camera.close()
 
+                        # Not pretty, but we need to chown this new file to www-data
+                        myuid = getpwnam('www-data').pw_uid
+                        os.chown(capfilename, myuid, -1)
+
                         qmsg = "IMG_UPLOAD %s" % filename
                         self.msgqueue.put(qmsg)
                         
@@ -169,8 +177,7 @@ class WebSocket(object):
                 print("Image has been uploaded - filename %s" % tkns[1])
                 imgmsg = "IMG_UPLOAD %s" % tkns[1]
                 self.msgqueue.put(imgmsg)
-
-                
+                self.sendMessage("done")                
 	
             #else:
                 # Send our reply

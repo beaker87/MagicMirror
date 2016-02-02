@@ -83,6 +83,45 @@
 		{
 			$.fancybox.close();
 		}
+		
+		function resizeImage(imgname)
+		{
+			var fd = new FormData();
+			fd.append('myFile', imgname);
+ 
+			var xhr = new XMLHttpRequest();
+			//xhr.upload.addEventListener("progress", resizeProgress, false);
+			xhr.addEventListener("load", resizeComplete, false);
+			//xhr.addEventListener("error", resizeFailed, false);
+			//xhr.addEventListener("abort", resizeCanceled, false);
+			xhr.open("POST", "doimage.php");
+			xhr.send(fd); 
+		}
+		
+		function resizeComplete(evt) {
+			/* This event is raised when the server send back a response */
+			// success <img_name>
+			//alert("Got response: " + evt.target.responseText);
+			
+			var splitStr = evt.target.responseText.split(" ");
+			
+			if( splitStr[0] == "success" )
+			{
+				var nImgPath="uploads/" + splitStr[1];
+				//$.fancybox.open('3_b.jpg');
+				$.fancybox.open([
+						{
+							href : nImgPath,
+							title : 'New Picture Added!',
+							closeClick : false
+						}
+					]
+				);
+				
+				// Close the popup again after 5 secs
+				setTimeout(closeNewImagePopup, 5000);
+			}
+		}
 
 		window.onload = function() {
 			
@@ -127,23 +166,7 @@
 					
 					if ( rx_msg == "IMG_UPLOAD" )
 					{
-						var nImgPath="uploads/" + splitStr[1];
-						//$.fancybox.open('3_b.jpg');
-						$.fancybox.open([
-								{
-									href : nImgPath,
-									title : 'New Picture Added!',
-									closeClick : false
-								}
-							]
-						);
-						
-						// Close the popup again after 5 secs
-						setTimeout(closeNewImagePopup, 5000);
-						
-						// Destroy the preview image
-						var tx_msg = "DESTROY_IMAGE " + splitStr[1];
-						s.send(tx_msg);
+						resizeImage(splitStr[1]);
 					}
 					
 					if ( rx_msg == "BUT_A" )

@@ -124,7 +124,7 @@
 
 		window.onload = function() {
 			
-<?php $displaySlideshow = False; ?>
+<?php $displaySlideshow = True; ?>
 <?php if ( $displaySlideshow ) { ?>
 
 			document.getElementById("slider1_container").style.width=getWidth();
@@ -165,22 +165,19 @@
 					
 					if ( rx_msg == "IMG_UPLOAD" ) // Image uploaded - just need to display it
 					{
-						if( splitStr[0] == "success" )
-						{
-							var nImgPath="uploads/" + splitStr[1];
-							//$.fancybox.open('3_b.jpg');
-							$.fancybox.open([
-									{
-										href : nImgPath,
-										title : 'New Picture Added!',
-										closeClick : false
-									}
-								]
-							);
-							
-							// Close the popup again after 5 secs
-							setTimeout(closeNewImagePopup, 5000);
-						}
+						var nImgPath="uploads/" + splitStr[1];
+						//$.fancybox.open('3_b.jpg');
+						$.fancybox.open([
+								{
+									href : nImgPath,
+									title : 'New Picture Added!',
+									closeClick : false
+								}
+							]
+						);
+						
+						// Close the popup again after 5 secs
+						setTimeout(closeNewImagePopup, 5000);
 					}
 					
 					if ( rx_msg == "BUT_A" )

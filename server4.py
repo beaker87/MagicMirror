@@ -125,6 +125,9 @@ class WebSocket(object):
                         imgtodel = "uploads/%s" % cmd[1]
                         
                         time.sleep(5)
+
+                        print("Deleting %s" % imgtodel)
+
                         # Delete image
                         os.remove( imgtodel )
 
@@ -146,6 +149,7 @@ class WebSocket(object):
 
                         timestamp = int(time.time())
                         filename = 'capture_%d.jpg' % timestamp
+                        thumbfilename = 'capture_%d_thumb.jpg' % timestamp
                         capfilename = "uploads/%s" % filename
 
                         # Do a 10 second camera preview
@@ -160,17 +164,28 @@ class WebSocket(object):
                         camera.close()
 
                         # Not pretty, but we need to chown this new file to www-data
+                        # or php won't have access to be able to resize / copy it
                         myuid = getpwnam('www-data').pw_uid
                         os.chown(capfilename, myuid, -1)
 
-                        qmsg = "IMG_UPLOAD %s" % filename
-                        self.msgqueue.put(qmsg)
+                        txmsg = "BUT_B %s" % filename
+                        #self.msgqueue.put(qmsg)
                         
-                        #self.sendMessage(''.join(txmsg).strip());
+                        print("Sending %s to webpage" % txmsg)
+                        self.sendMessage(''.join(txmsg).strip());
+
+                        imgtodel = "uploads/%s" % thumbfilename
+                        
+                        time.sleep(5)
+                        
+                        print("Deleting %s" % imgtodel)
+
+                        # Delete image
+                        os.remove( imgtodel )
 
                     self.msgqueue.task_done()
 
-                print("Done with socket")					
+                print("Done with socket")
 
             if tkns[0] == "image_upload":
 

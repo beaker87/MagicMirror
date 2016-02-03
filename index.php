@@ -108,7 +108,6 @@
 			if( splitStr[0] == "success" )
 			{
 				var nImgPath="uploads/" + splitStr[1];
-				//$.fancybox.open('3_b.jpg');
 				$.fancybox.open([
 						{
 							href : nImgPath,
@@ -164,9 +163,24 @@
 					var rx_msg = splitStr[0];
 					//alert("Got message: " + rx_msg);
 					
-					if ( rx_msg == "IMG_UPLOAD" )
+					if ( rx_msg == "IMG_UPLOAD" ) // Image uploaded - just need to display it
 					{
-						resizeImage(splitStr[1]);
+						if( splitStr[0] == "success" )
+						{
+							var nImgPath="uploads/" + splitStr[1];
+							//$.fancybox.open('3_b.jpg');
+							$.fancybox.open([
+									{
+										href : nImgPath,
+										title : 'New Picture Added!',
+										closeClick : false
+									}
+								]
+							);
+							
+							// Close the popup again after 5 secs
+							setTimeout(closeNewImagePopup, 5000);
+						}
 					}
 					
 					if ( rx_msg == "BUT_A" )
@@ -198,7 +212,8 @@
 					if ( rx_msg == "BUT_B" )
 					{
 						// Button B pressed - camera preview / snapshot
-						alert("Camera button pressed! Filename = " + splitStr[1]);
+						//alert("Camera button pressed! Filename = " + splitStr[1]);
+						resizeImage(splitStr[1]); // Need to resize this image before displaying it
 					}
 				}
 			};

@@ -1,5 +1,5 @@
-@media screen and (max-device-width: 480px){
-    body{
+@media screen {
+/*    body{
 	    -webkit-text-size-adjust:none;
         font-family:Helvetica, Arial, Verdana, sans-serif;
         padding:5px;
@@ -32,17 +32,20 @@
     #nav li a{
         display:block;
     }
+	*/
+	
+	/*
+	input[type="button"] {
+		display: none;
+	}
+	*/
 	
 	input[type="file"] {
 		display: none;
 	}
-	/*input[type="button"] {
-		display: none;
-	}*/
-
 	
 	.custom-camera {
-		background-image: url("images/camera.png");
+		background-image: url("../images/camera.png");
 		background-repeat: no-repeat;
 		display: inline-block;
 		padding: 6px 12px;
@@ -52,13 +55,13 @@
 	}
 
 	.custom-upload {
-		background-image: url("images/upload.png");
+		background-image: url("../images/upload.png");
 		background-repeat: no-repeat;
 		display: inline-block;
 		padding: 6px 12px;
 		cursor: pointer;
 		width: 300px;
-		height: 233px;
+		height: 50px;
 	}
 
 }

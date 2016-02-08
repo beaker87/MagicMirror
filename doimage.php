@@ -25,7 +25,7 @@ if (isset($_POST['myFile']) && !empty($_POST['myFile']))
 	
 	// TODO proper size, and blur setting. Also try FILTER_CATROM (similar to LANCZOS but much faster)
 	// TODO disable upscaling
-	$im->resizeImage(1080,1920,Imagick::FILTER_LANCZOS,1, true);
+	$im->resizeImage(1080,1920,Imagick::FILTER_CATROM,1, true);
 	
 	// overwrite tmp file
 	$im->writeImage($tmp_filename); // TODO if this doesn't work, can we just send output to $destfilename below?
@@ -41,7 +41,7 @@ if (isset($_POST['myFile']) && !empty($_POST['myFile']))
 	$thumb = new Imagick($tmp_filename);
 	// TODO proper size, and blur setting. Also try FILTER_CATROM (similar to LANCZOS but much faster)
 	// TODO disable upscaling
-	$thumb->resizeImage(640,480,Imagick::FILTER_LANCZOS,1, true);
+	$thumb->resizeImage(640,480,Imagick::FILTER_CATROM,1, true);
 	$thumb->writeImage($thumb_destfilename);
 	$thumb->clear(); // TODO remove?
 	$thumb->destroy();

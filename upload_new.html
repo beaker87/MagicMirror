@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>MagicMirror</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+	<link href="css/iphone.css" type="text/css" rel="stylesheet" />
+	
+    <!-- Swiper JS -->
+   	<script src="js/jquery.js"></script>
+    <script src="js/swiper.jquery.min.js"></script>
+	<script type="text/javascript" src="js/jquery.fancybox.pack.js?v=2.1.5"></script>
+	<link rel="stylesheet" type="text/css" href="css/jquery.fancybox.css?v=2.1.5" media="screen" />
+
+    <!-- Link Swiper's CSS -->
+    <link rel="stylesheet" href="css/swiper.css">
+
+    <!-- Demo styles -->
+    <style>
+    html, body {
+        position: relative;
+        height: 100%;
+    }
+    body {
+        background: #eee;
+        font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+        font-size: 14px;
+        color:#000;
+        margin: 0;
+        padding: 0;
+    }
+    .swiper-container {
+        width: 100%;
+        height: 100%;
+    }
+    .swiper-slide {
+        text-align: center;
+        font-size: 18px;
+        background: #fff;
+
+        /* Center slide text vertically */
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-pack: center;
+        -ms-flex-pack: center;
+        -webkit-justify-content: center;
+        justify-content: center;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        -webkit-align-items: center;
+        align-items: center;
+    }
+    #select_slide {
+		background: #ff0000;
+	}
+    #progress_slide {
+		background: #00ff00;
+	}
+    #preview_slide {
+		background: #0000ff;
+	}
+    </style>
+    
+    <script type="text/javascript">
+		
+		/*window.onload = function()
+		{
+			var s = new WebSocket("ws://raspberrypi:9998/");
+			s.onopen = function(e) { alert("opened"); s.send("image_upload testpic.jpg4123"); }
+			s.onclose = function(e) { alert("closed"); }
+			s.onmessage = function(e)
+			{
+				alert("Successfully uploaded image!");
+				location.reload(true); // Force reload from server rather than cache
+			}
+		}*/
+		
+		function closeNewImagePopup()
+		{
+			$.fancybox.close();
+			location.reload(true); // Force reload from server rather than cache
+		}
+
+		function fileSelected() {
+			var count = document.getElementById('fileToUpload').files.length;
+			document.getElementById('details').innerHTML = "";
+			for (var index = 0; index < count; index ++)
+			{
+				var file = document.getElementById('fileToUpload').files[index];
+				var fileSize = 0;
+				if (file.size > 1024 * 1024)
+					fileSize = (Math.round(file.size * 100 / (1024 * 1024)) / 100).toString() + 'MB';
+				else
+					fileSize = (Math.round(file.size * 100 / 1024) / 100).toString() + 'KB';
+					document.getElementById('details').innerHTML += 'Name: ' + file.name + '<br>Size: ' + fileSize + '<br>Type: ' + file.type;
+					document.getElementById('details').innerHTML += '<p>';
+			}
+		}
+ 
+		function uploadFile() {
+			swiper.unlockSwipes();
+			swiper.slideTo(1, 400, true);
+			swiper.lockSwipes();
+
+			var fd = new FormData();
+			var count = document.getElementById('fileToUpload').files.length;
+			for (var index = 0; index < count; index ++)
+			{
+				var file = document.getElementById('fileToUpload').files[index];
+				fd.append('myFile', file);
+			}
+ 
+			var xhr = new XMLHttpRequest();
+			xhr.upload.addEventListener("progress", uploadProgress, false);
+			xhr.addEventListener("load", uploadComplete, false);
+			xhr.addEventListener("error", uploadFailed, false);
+			xhr.addEventListener("abort", uploadCanceled, false);
+			xhr.open("POST", "savetofile.php");
+			xhr.send(fd);
+		}
+      
+		function resizeImage(imgname)
+		{
+			var fd = new FormData();
+			fd.append('myFile', imgname);
+			
+			var xhr = new XMLHttpRequest();
+			//xhr.upload.addEventListener("progress", resizeProgress, false);
+			xhr.addEventListener("load", resizeComplete, false);
+			//xhr.addEventListener("error", resizeFailed, false);
+			//xhr.addEventListener("abort", resizeCanceled, false);
+			xhr.open("POST", "doimage.php");
+			xhr.send(fd); 
+		}
+			  
+		function resizeComplete(evt) {
+			/* This event is raised when the server send back a response */
+			// success <img_name>
+			//alert("Got response: " + evt.target.responseText);
+			
+			var splitStr = evt.target.responseText.split(" ");
+			
+			if( splitStr[0] == "success" )
+			{
+				swiper.unlockSwipes();
+				swiper.slideTo(2, 400, true);
+				swiper.lockSwipes();
+							
+				var nImgPath="uploads/" + splitStr[1];
+				$.fancybox.open([
+						{
+							href : nImgPath,
+							title : 'New Picture Added!',
+							closeClick : false
+						}
+					]
+				);
+				
+				// Close the popup again after 5 secs
+				setTimeout(closeNewImagePopup, 5000);		
+				
+				var msg = "image_upload " + splitStr[1];
+
+				//alert("Uploaded " + msg);
+				var s = new WebSocket("ws://raspberrypi:9998/");
+				s.onopen = function(e) { /*alert("opened");*/ s.send(msg); }
+				s.onclose = function(e) { /*alert("closed");*/ }
+				s.onmessage = function(e)
+				{
+					//alert("Successfully uploaded image!");
+				}
+			}
+		}
+
+
+		function uploadProgress(evt) {
+			if (evt.lengthComputable) {
+				var percentComplete = Math.round(evt.loaded * 100 / evt.total);
+				document.getElementById('progress_slide').innerHTML = percentComplete.toString() + '%';
+			}
+			else {
+				document.getElementById('progress_slide').innerHTML = 'unable to compute';
+			}
+		}
+ 
+		function uploadComplete(evt) {
+			/* This event is raised when the server send back a response */
+			// success <img_name>
+			//alert("Got response: " + evt.target.responseText);
+
+			var splitStr = evt.target.responseText.split(" ");
+
+			document.getElementById('progress_slide').innerHTML = '<p align=\"center\">Upload Complete<br><br>Processing image...<br><br><img src=\"images/fancybox_loading@2x.gif\" \></p>';
+
+			if( splitStr[0] == "success" )
+			{
+				// Resize image and create thumb
+				resizeImage( splitStr[1] );	
+			}
+		}
+
+		function uploadFailed(evt) {
+			alert("There was an error attempting to upload the file.");
+		}
+
+		function uploadCanceled(evt) {
+			alert("The upload has been canceled by the user or the browser dropped the connection.");
+		}
+    </script>
+</head>
+<body>
+    <!-- Swiper -->
+    <div class="swiper-container">
+        <div class="swiper-wrapper">
+            <div id="select_slide" class="swiper-slide">
+				<form id="form1" enctype="multipart/form-data" method="post" action="savetofile.php">
+					<div>
+						<label class="custom-camera" for="fileToUpload">&nbsp;</label><br />
+						<input type="file" name="fileToUpload" id="fileToUpload" onchange="fileSelected();" accept="image/*" capture="camera" />
+					</div>
+					<div id="details"></div>
+					<div>
+						<label class="custom-upload" for="uploadButton">&nbsp;</label>
+						<input type="button" name="uploadButton" value="Upload" onclick="uploadFile()" />
+					</div>
+				</form>
+			</div>
+            
+            <div id="progress_slide" class="swiper-slide">Uploading...</div>
+            <div id="preview_slide" class="swiper-slide">Preview</div>
+        </div>
+        <!-- Add Pagination -->
+        <div class="swiper-pagination"></div>
+    </div>
+
+    <!-- Initialize Swiper -->
+    <script>
+    var swiper = new Swiper('.swiper-container', {
+        pagination: '.swiper-pagination',
+        paginationClickable: true
+    });
+    
+    swiper.lockSwipes();
+    //swiper.lockSwipeToNext();
+    //swiper.lockSwipeToPrev();
+    </script>
+</body>
+</html>

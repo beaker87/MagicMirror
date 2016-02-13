@@ -49,19 +49,26 @@
 		background-repeat: no-repeat;
 		display: inline-block;
 		/*padding: 6px 12px;*/
+		/*top: -50px;*/
+		position:relative;
 		cursor: pointer;
 		width: 105px;
 		height: 105px;
+		margin:25px;
+		top: -50px;
 	}
 
 	.custom-upload {
-		background-image: url("../images/upload.png");
+		background-image: url("../images/gallery_icon.png");
 		background-repeat: no-repeat;
 		display: inline-block;
-		padding: 6px 12px;
+		/*padding: 6px 12px;*/
+		position: relative;
 		cursor: pointer;
-		width: 300px;
-		height: 50px;
+		width: 105px;
+		height: 105px;
+		margin: 25px;
+		top: -50px;
 	}
 
 }

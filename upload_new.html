@@ -80,25 +80,44 @@
 		window.onload = function()
 		{
 			sock = new WebSocket("ws://raspberrypi:9998/");
-			sock.onopen = function(e) { alert("opened"); sock.send("image_upload testpic.jpg4123"); }
+			sock.onopen = function(e) { alert("opened"); }
 			sock.onclose = function(e) { alert("closed"); }
 			sock.onmessage = function(e)
 			{
 				alert("Got message: " + e.data);
+				var splitStr = e.data.split(" ");
+			
+				if( splitStr[0] == "capture" )
+				{
+					resizeImage(splitStr[1])
+				}
 			}
+		}
+		
+		function closeConnection()
+		{
+			alert("Going to close connection");
+			sock.close();
 		}
 		
 		function startCamera()
 		{
 			alert("Going to start camera!");
-			var cam_msg = "camera start"
+			var cam_msg = "camera start";
 			sock.send(cam_msg);
 		}
 		
 		function stopCamera()
 		{
 			alert("Going to stop camera!");
-			var cam_msg = "camera stop"
+			var cam_msg = "camera stop";
+			sock.send(cam_msg);
+		}
+		
+		function takePicture()
+		{
+			alert("Say cheese!");
+			var cam_msg = "camera picture";
 			sock.send(cam_msg);
 		}
 		
@@ -253,6 +272,8 @@
 				<div id="cameraform" style="left: 0px; top:100px; position:absolute;">
 					<input type="button" value="Start camera" onclick="startCamera();" />
 					<input type="button" value="Stop camera" onclick="stopCamera();" />
+					<input type="button" value="Take picture" onclick="takePicture();" />
+					<input type="button" value="Close connection" onclick="closeConnection();" />
 				</div>
 			</div>
 			

@@ -54,7 +54,7 @@ queue = Queue.Queue()
 #		q.put("Ben Test Q Msg")
 
 # Global camera object
-camera = None
+#camera = None
 
 # WebSocket implementation
 class WebSocket(object):
@@ -70,7 +70,7 @@ class WebSocket(object):
         "\r\n"
     )
 
-    global camera
+    camera = None
 
     # Constructor
     def __init__(self, client, server, msgqueue):
@@ -81,6 +81,17 @@ class WebSocket(object):
         self.data = ""
         self.msgqueue = msgqueue
 
+    # Destructor
+    def __del__(self):
+		print("WebSocket destructor")
+
+    def stopcamera(self):
+        if self.camera is not None:
+            print("Stopping camera")
+            self.camera.stop_preview()
+            self.camera.close()
+            self.camera = None
+        print("Camera stopped")
 
     # Serve this client
     def feed(self, data):
@@ -108,7 +119,16 @@ class WebSocket(object):
             m_msg = ''.join(recv).strip()
             print( "Message we got was %s" % m_msg)
 
-            tkns = m_msg.split()
+            if m_msg == "":
+                # We got an empty message - this can happen
+                # when the client closes connection unexpectedly
+                print("Message was empty, returning...")
+                if self.camera is not None:
+                    print("Camera still alive, closing it...")
+                    self.stopcamera()
+                return
+
+            tkns = m_msg.split()           
 
             if tkns[0] == "ready":
                 print( "Webpage is ready, waiting for external events" )
@@ -200,22 +220,53 @@ class WebSocket(object):
 
             if tkns[0] == "camera":
                 if tkns[1] == "start":
-                    if camera is None:
+                    if self.camera is None:
                         print("Starting camera")
-                        camera = picamera.PiCamera()
-                        camera.start_preview()
+                        self.camera = picamera.PiCamera()
+                        self.camera.start_preview()
                     else:
                         print("Nothing to do, camera already started")
 
                 if tkns[1] == "stop":
-                    if camera is None:
+                    if self.camera is None:
                         print("Nothing to do, camera already stopped")
                     else:
-                        print("Stopping camera")
-                        camera.stop_preview()
-                        camera.close()
-                        camera = None
+                        self.stopcamera()
+
+                if tnks[1] == "picture":
+                    if self.camera is not None:
+                        timestamp = int(time.time())
+                        filename = 'capture_%d.jpg' % timestamp
+                        thumbfilename = 'capture_%d_thumb.jpg' % timestamp
+                        capfilename = "uploads/%s" % filename
+
+                        camera.capture(capfilename)
+                        self.stopcamera()
+
+                        # Not pretty, but we need to chown this new file to www-data
+                        # or php won't have access to be able to resize / copy it
+                        myuid = getpwnam('www-data').pw_uid
+                        os.chown(capfilename, myuid, -1)
+
+                        txmsg = "capture %s" % filename
+                        #self.msgqueue.put(qmsg)
                         
+                        print("Sending %s to webpage" % txmsg)
+                        self.sendMessage(''.join(txmsg).strip());
+
+                        imgtodel = "uploads/%s" % thumbfilename
+                        
+                        time.sleep(3)
+                        
+                        print("Deleting %s" % imgtodel)
+
+                        # Delete image
+                        os.remove( imgtodel )
+                        
+                if tkns[1] == "brightness":
+                    if self.camera is not None:
+                        self.camera.brightness = tnks[2]
+						
 
             #else:
                 # Send our reply

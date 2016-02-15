@@ -53,6 +53,9 @@ queue = Queue.Queue()
 #		time.sleep(5)
 #		q.put("Ben Test Q Msg")
 
+# Global camera object
+camera = None
+
 # WebSocket implementation
 class WebSocket(object):
 
@@ -67,6 +70,7 @@ class WebSocket(object):
         "\r\n"
     )
 
+    global camera
 
     # Constructor
     def __init__(self, client, server, msgqueue):
@@ -193,7 +197,26 @@ class WebSocket(object):
                 imgmsg = "IMG_UPLOAD %s" % tkns[1]
                 self.msgqueue.put(imgmsg)
                 self.sendMessage("done")                
-	
+
+            if tkns[0] == "camera":
+                if tkns[1] == "start":
+                    if camera is None:
+                        print("Starting camera")
+                        camera = picamera.PiCamera()
+                        camera.start_preview()
+                    else:
+                        print("Nothing to do, camera already started")
+
+                if tkns[1] == "stop":
+                    if camera is None:
+                        print("Nothing to do, camera already stopped")
+                    else:
+                        print("Stopping camera")
+                        camera.stop_preview()
+                        camera.close()
+                        camera = None
+                        
+
             #else:
                 # Send our reply
             #    logging.debug("Sending message...")

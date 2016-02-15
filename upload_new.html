@@ -75,21 +75,31 @@
     
     <script type="text/javascript">
 		
-		/*window.onload = function()
+		var sock;
+		
+		window.onload = function()
 		{
-			var s = new WebSocket("ws://raspberrypi:9998/");
-			s.onopen = function(e) { alert("opened"); s.send("image_upload testpic.jpg4123"); }
-			s.onclose = function(e) { alert("closed"); }
-			s.onmessage = function(e)
+			sock = new WebSocket("ws://raspberrypi:9998/");
+			sock.onopen = function(e) { alert("opened"); sock.send("image_upload testpic.jpg4123"); }
+			sock.onclose = function(e) { alert("closed"); }
+			sock.onmessage = function(e)
 			{
-				alert("Successfully uploaded image!");
-				location.reload(true); // Force reload from server rather than cache
+				alert("Got message: " + e.data);
 			}
-		}*/
+		}
 		
 		function startCamera()
 		{
 			alert("Going to start camera!");
+			var cam_msg = "camera start"
+			sock.send(cam_msg);
+		}
+		
+		function stopCamera()
+		{
+			alert("Going to stop camera!");
+			var cam_msg = "camera stop"
+			sock.send(cam_msg);
 		}
 		
 		function closeNewImagePopup()
@@ -233,13 +243,17 @@
 		<div class="parallax-bg" style="background-image:url(images/bg1.jpg)" data-swiper-parallax="-23%"></div>
 		<div class="swiper-wrapper">
 			<div id="select_slide" class="swiper-slide">
-					<div id="upload" class="custom-camera" onclick="startCamera();"></div>
+				<div id="upload" class="custom-camera" onclick="startCamera();"></div>
 				<form id="form1" enctype="multipart/form-data" method="post" action="savetofile.php">
 					<div id="camera">
 						<label class="custom-upload" for="fileToUpload">&nbsp;</label><br />
 						<input type="file" name="fileToUpload" id="fileToUpload" onchange="fileSelected();" accept="image/*" capture="camera" />
 					</div>
 				</form>
+				<div id="cameraform" style="left: 0px; top:100px; position:absolute;">
+					<input type="button" value="Start camera" onclick="startCamera();" />
+					<input type="button" value="Stop camera" onclick="stopCamera();" />
+				</div>
 			</div>
 			
 			<div id="progress_slide" class="swiper-slide">Uploading...</div>

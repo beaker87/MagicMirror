@@ -240,7 +240,7 @@ class WebSocket(object):
                         thumbfilename = 'capture_%d_thumb.jpg' % timestamp
                         capfilename = "uploads/%s" % filename
 
-                        camera.capture(capfilename)
+                        self.camera.capture(capfilename)
                         self.stopcamera()
 
                         # Not pretty, but we need to chown this new file to www-data

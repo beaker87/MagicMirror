@@ -233,7 +233,7 @@ class WebSocket(object):
                     else:
                         self.stopcamera()
 
-                if tnks[1] == "picture":
+                if tkns[1] == "picture":
                     if self.camera is not None:
                         timestamp = int(time.time())
                         filename = 'capture_%d.jpg' % timestamp
@@ -265,7 +265,7 @@ class WebSocket(object):
                         
                 if tkns[1] == "brightness":
                     if self.camera is not None:
-                        self.camera.brightness = tnks[2]
+                        self.camera.brightness = tkns[2]
 						
 
             #else:

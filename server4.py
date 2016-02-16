@@ -265,14 +265,16 @@ class WebSocket(object):
                         
                 if tkns[1] == "brightness":
                     if self.camera is not None:
-                        self.camera.brightness = tkns[2]
+                        self.camera.brightness = int(tkns[2])
 
                 if tkns[1] == "contrast":
                     if self.camera is not None:
-                        self.camera.contrast = tkns[2]
+                        self.camera.contrast = int(tkns[2])
 
                 if tkns[1] == "image_effect":
                     if self.camera is not None:
+                        print("Setting camera effect: %s" % tkns[2])
+                        # TODO needs a try/catch - some effects might not work
                         self.camera.image_effect = tkns[2]
 						
 
@@ -509,7 +511,7 @@ if __name__ == "__main__":
     # Add SIGINT handler for killing the threads
     def signal_handler(signal, frame):
         logging.info("Caught Ctrl+C, shutting down...")
-        queue.join()
+        #queue.join()
         server.running = False
         upload_server.running = False
         print("Terminating cls")

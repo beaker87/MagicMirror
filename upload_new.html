@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8">
     <title>MagicMirror</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">-->
+    <meta name="viewport" content="width=device-width">
 	<link href="css/iphone.css" type="text/css" rel="stylesheet" />
 	
     <!-- Swiper JS -->
@@ -84,7 +85,7 @@
 			sock.onclose = function(e) { alert("closed"); }
 			sock.onmessage = function(e)
 			{
-				alert("Got message: " + e.data);
+				//alert("Got message: " + e.data);
 				var splitStr = e.data.split(" ");
 			
 				if( splitStr[0] == "capture" )
@@ -131,7 +132,10 @@
 		function closeNewImagePopup()
 		{
 			$.fancybox.close();
-			location.reload(true); // Force reload from server rather than cache
+			//location.reload(true); // Force reload from server rather than cache
+			swiper.unlockSwipes();
+			swiper.slideTo(0, 400, true);
+			swiper.lockSwipes();
 		}
 
 		function fileSelected() {
@@ -283,7 +287,7 @@
 					<input type="button" value="Close connection" onclick="closeConnection();" />
 					<input type="range" name="brightness" min="0" max="10" onChange="setCameraParam('brightness',this.value * 10);">Brightness</input>
 					<input type="range" name="contrast" min="-10" max="10" onChange="setCameraParam('contrast',this.value * 10);">Contrast</input>
-					<select name="image_effect" onChange="setCameraParam('image_effect', '\'' + this.value + '\'');">
+					<select name="image_effect" onChange="setCameraParam('image_effect', this.value);">
 						<option value="none">None</option>
 						<option value="negative">Negative</option>
 						<option value="solarize">Solarize</option>
@@ -326,7 +330,7 @@
 		speed: 600
 	});
     
-	swiper.lockSwipes();
+	//swiper.lockSwipes();
 	//swiper.lockSwipeToNext();
 	//swiper.lockSwipeToPrev();
 	</script>

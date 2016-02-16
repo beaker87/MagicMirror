@@ -121,6 +121,13 @@
 			sock.send(cam_msg);
 		}
 		
+		function setCameraParam(param, value)
+		{
+			var cam_msg = "camera " + param + " " + value;
+			console.log(cam_msg);
+			sock.send(cam_msg);
+		}
+		
 		function closeNewImagePopup()
 		{
 			$.fancybox.close();
@@ -274,6 +281,32 @@
 					<input type="button" value="Stop camera" onclick="stopCamera();" />
 					<input type="button" value="Take picture" onclick="takePicture();" />
 					<input type="button" value="Close connection" onclick="closeConnection();" />
+					<input type="range" name="brightness" min="0" max="10" onChange="setCameraParam('brightness',this.value * 10);">Brightness</input>
+					<input type="range" name="contrast" min="-10" max="10" onChange="setCameraParam('contrast',this.value * 10);">Contrast</input>
+					<select name="image_effect" onChange="setCameraParam('image_effect', '\'' + this.value + '\'');">
+						<option value="none">None</option>
+						<option value="negative">Negative</option>
+						<option value="solarize">Solarize</option>
+						<option value="sketch">Sketch</option>
+						<option value="denoise">Denoise</option>
+						<option value="emboss">Emboss</option>
+						<option value="oilpaint">Oilpaint</option>
+						<option value="hatch">Hatch</option>
+						<option value="gpen">GPEN</option>
+						<option value="pastel">Pastel</option>
+						<option value="watercolor">Watercolour</option>
+						<option value="film">Film</option>
+						<option value="blur">Blur</option>
+						<option value="saturation">Saturation</option>
+						<option value="colorswap">Colour swap</option>
+						<option value="washedout">Washed out</option>
+						<option value="posterise">Posterise</option>
+						<option value="colorpoint">Colour point</option>
+						<option value="colorbalance">Colour balance</option>
+						<option value="cartoon">Cartoon</option>
+						<option value="deinterlace1">Deinterlace 1</option>
+						<option value="deinterlace2">Deinterlace 2</option>
+					</select>
 				</div>
 			</div>
 			

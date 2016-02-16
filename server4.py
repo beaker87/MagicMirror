@@ -266,6 +266,14 @@ class WebSocket(object):
                 if tkns[1] == "brightness":
                     if self.camera is not None:
                         self.camera.brightness = tkns[2]
+
+                if tkns[1] == "contrast":
+                    if self.camera is not None:
+                        self.camera.contrast = tkns[2]
+
+                if tkns[1] == "image_effect":
+                    if self.camera is not None:
+                        self.camera.image_effect = tkns[2]
 						
 
             #else:

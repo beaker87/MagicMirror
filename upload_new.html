@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>MagicMirror</title>
-    <!--<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">-->
-    <meta name="viewport" content="width=device-width">
+	<meta charset="utf-8">
+	<title>MagicMirror</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+	<!--<meta name="viewport" content="width=device-width">-->
 	<link href="css/iphone.css" type="text/css" rel="stylesheet" />
 	
-    <!-- Swiper JS -->
-   	<script src="js/jquery.js"></script>
-    <script src="js/swiper.jquery.min.js"></script>
+	<!-- Swiper JS -->
+	<script src="js/jquery.js"></script>
+	<script src="js/swiper.jquery.min.js"></script>
 	<script type="text/javascript" src="js/jquery.fancybox.pack.js?v=2.1.5"></script>
 	<link rel="stylesheet" type="text/css" href="css/jquery.fancybox.css?v=2.1.5" media="screen" />
 
@@ -40,6 +40,7 @@
         /*background: #fff;*/
 
         /* Center slide text vertically */
+		/*
         display: -webkit-box;
         display: -ms-flexbox;
         display: -webkit-flex;
@@ -51,7 +52,7 @@
         -webkit-box-align: center;
         -ms-flex-align: center;
         -webkit-align-items: center;
-        align-items: center;
+        align-items: center;*/
     }
 	.parallax-bg {
 		position: absolute;
@@ -63,10 +64,10 @@
         background-size: cover;
         background-position: center;
 	}
-    #select_slide {
+    #gallery_slide {
 		/*background: #ff0000;*/
 	}
-    #progress_slide {
+    #camera_slide {
 		/*background: #00ff00;*/
 	}
     #preview_slide {
@@ -133,9 +134,9 @@
 		{
 			$.fancybox.close();
 			//location.reload(true); // Force reload from server rather than cache
-			swiper.unlockSwipes();
-			swiper.slideTo(0, 400, true);
-			swiper.lockSwipes();
+			//swiper.unlockSwipes();
+			//swiper.slideTo(0, 400, true);
+			//swiper.lockSwipes();
 		}
 
 		function fileSelected() {
@@ -157,9 +158,9 @@
 		}
  
 		function uploadFile() {
-			swiper.unlockSwipes();
-			swiper.slideTo(1, 400, true);
-			swiper.lockSwipes();
+			//swiper.unlockSwipes();
+			//swiper.slideTo(1, 400, true);
+			//swiper.lockSwipes();
 
 			var fd = new FormData();
 			var count = document.getElementById('fileToUpload').files.length;
@@ -201,16 +202,27 @@
 			
 			if( splitStr[0] == "success" )
 			{
-				swiper.unlockSwipes();
-				swiper.slideTo(2, 400, true);
-				swiper.lockSwipes();
+				//swiper.unlockSwipes();
+				//swiper.slideTo(2, 400, true);
+				//swiper.lockSwipes();
 							
 				var nImgPath="uploads/" + splitStr[1];
+				
+				console.log("Opening fancybox with image " + splitStr[1] + " and link to " + splitStr[2]);
+				
 				$.fancybox.open([
 						{
 							href : nImgPath,
 							title : 'New Picture Added!',
-							closeClick : false
+							closeClick : false,
+							onComplete: function () {
+								jQuery("#fancybox-img").wrap(jQuery("<a />", {
+								//href: "http://www.google.com/#q=fancybox%20test", // the URL to open after clicking the image
+								href: splitStr[2],
+								target: "_blank", // opens in a new window/tab
+								title: "Go to Google" // optional, shows on mouse hover
+							}))
+							}
 						}
 					]
 				);
@@ -249,7 +261,7 @@
 
 			var splitStr = evt.target.responseText.split(" ");
 
-			document.getElementById('progress_slide').innerHTML = '<p align=\"center\">Upload Complete<br><br>Processing image...<br><br><img src=\"images/fancybox_loading@2x.gif\" \></p>';
+			document.getElementById('upload_progress').innerHTML = '<p align=\"center\">Upload Complete<br><br>Processing image...<br><br><img src=\"images/fancybox_loading@2x.gif\" \></p>';
 
 			if( splitStr[0] == "success" )
 			{
@@ -272,14 +284,8 @@
 	<div class="swiper-container">
 		<div class="parallax-bg" style="background-image:url(images/bg1.jpg)" data-swiper-parallax="-23%"></div>
 		<div class="swiper-wrapper">
-			<div id="select_slide" class="swiper-slide">
-				<div id="upload" class="custom-camera" onclick="startCamera();"></div>
-				<form id="form1" enctype="multipart/form-data" method="post" action="savetofile.php">
-					<div id="camera">
-						<label class="custom-upload" for="fileToUpload">&nbsp;</label><br />
-						<input type="file" name="fileToUpload" id="fileToUpload" onchange="fileSelected();" accept="image/*" capture="camera" />
-					</div>
-				</form>
+			<div id="camera_slide" class="swiper-slide">
+				<div id="camera" class="custom-camera" onclick="startCamera();"></div>
 				<div id="cameraform" style="left: 0px; top:100px; position:absolute;">
 					<input type="button" value="Start camera" onclick="startCamera();" />
 					<input type="button" value="Stop camera" onclick="stopCamera();" />
@@ -287,6 +293,8 @@
 					<input type="button" value="Close connection" onclick="closeConnection();" />
 					<input type="range" name="brightness" min="0" max="10" onChange="setCameraParam('brightness',this.value * 10);">Brightness</input>
 					<input type="range" name="contrast" min="-10" max="10" onChange="setCameraParam('contrast',this.value * 10);">Contrast</input>
+					<input type="range" name="saturation" min="-10" max="10" onChange="setCameraParam('saturation',this.value * 10);">Saturation</input>
+					<input type="range" name="sharpness" min="-10" max="10" onChange="setCameraParam('sharpness',this.value * 10);">Sharpness</input>
 					<select name="image_effect" onChange="setCameraParam('image_effect', this.value);">
 						<option value="none">None</option>
 						<option value="negative">Negative</option>
@@ -311,11 +319,50 @@
 						<option value="deinterlace1">Deinterlace 1</option>
 						<option value="deinterlace2">Deinterlace 2</option>
 					</select>
+					<select name="awb_mode" onChange="setCameraParam('awb_mode', this.value);">
+						<option value="auto">Auto</option>
+						<option value="sunlight">Sunlight</option>
+						<option value="cloudy">Cloudy</option>
+						<option value="shade">Shade</option>
+						<option value="tungsten">Tungsten</option>
+						<option value="fluorescent">Fluorescent</option>
+						<option value="incandescent">Incandescent</option>
+						<option value="flash">Flash</option>
+						<option value="horizon">Horizon</option>
+					</select>
+					<select name="exposure_mode" onChange="setCameraParam('exposure_mode', this.value);">
+						<option value="auto">Auto</option>
+						<option value="night">Night</option>
+						<option value="nightpreview">Night Preview</option>
+						<option value="backlight">Backlight</option>
+						<option value="spotlight">Spotlight</option>
+						<option value="sports">Sports</option>
+						<option value="snow">Snow</option>
+						<option value="beach">Beach</option>
+						<option value="verylong">Very Long</option>
+						<option value="fixedfps">Fixed FPS</option>
+						<option value="antishake">Anti-shake</option>
+						<option value="fireworks">Fireworks</option>
+					</select>
+					<select name="meter_mode" onChange="setCameraParam('meter_mode', this.value);">
+						<option value="average">Average</option>
+						<option value="spot">Spot</option>
+						<option value="backlit">Backlit</option>
+						<option value="matrix">Matrix</option>
+					</select>
 				</div>
 			</div>
-			
-			<div id="progress_slide" class="swiper-slide">Uploading...</div>
-			<div id="preview_slide" class="swiper-slide">Preview</div>
+			<div id="gallery_slide" class="swiper-slide">
+					<div id="gallery_icon">
+						<form id="uploadform" enctype="multipart/form-data" method="post" action="savetofile.php">
+							<div id="gallery">
+								<label class="custom-upload" for="fileToUpload">&nbsp;</label><br />
+								<input type="file" name="fileToUpload" id="fileToUpload" onchange="fileSelected();" accept="image/*" capture="camera" />
+							</div>
+						</form>
+					</div>
+					<div id="upload_progress" style="margin:50px;">Press the icon to upload or take a picture from your device</div>
+			</div>
 		</div>
 		<!-- Add Pagination -->
 		<div class="swiper-pagination"></div>

@@ -46,7 +46,7 @@ if (isset($_POST['myFile']) && !empty($_POST['myFile']))
 	$thumb->clear(); // TODO remove?
 	$thumb->destroy();
 	
-	echo 'success ' . $thumb_filename; // Send thumb filename to server script
+	echo 'success ' . $thumb_filename . ' ' . $tmp_filename; // Send thumb filename to server script
 	
 	
 	/*

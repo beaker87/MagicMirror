@@ -271,11 +271,37 @@ class WebSocket(object):
                     if self.camera is not None:
                         self.camera.contrast = int(tkns[2])
 
+                if tkns[1] == "saturation":
+                    if self.camera is not None:
+                        self.camera.saturation = int(tkns[2])
+
+                if tkns[1] == "sharpness":
+                    if self.camera is not None:
+                        self.camera.sharpness = int(tkns[2])
+
                 if tkns[1] == "image_effect":
                     if self.camera is not None:
                         print("Setting camera effect: %s" % tkns[2])
                         # TODO needs a try/catch - some effects might not work
                         self.camera.image_effect = tkns[2]
+
+                if tkns[1] == "awb_mode":
+                    if self.camera is not None:
+                        print("Setting AWB mode: %s" % tkns[2])
+                        # TODO needs a try/catch - some modes might not work
+                        self.camera.awb_mode = tkns[2]
+
+                if tkns[1] == "exposure_mode":
+                    if self.camera is not None:
+                        print("Setting exposure mode: %s" % tkns[2])
+                        # TODO needs a try/catch - some modes might not work
+                        self.camera.exposure_mode = tkns[2]
+
+                if tkns[1] == "meter_mode":
+                    if self.camera is not None:
+                        print("Setting meter mode: %s" % tkns[2])
+                        # TODO needs a try/catch - some modes might not work
+                        self.camera.meter_mode = tkns[2]
 						
 
             #else:

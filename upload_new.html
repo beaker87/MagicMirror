@@ -79,10 +79,16 @@
 		
 		var sock;
 		
+		function keepAlive()
+        {
+			sock.send("keepalive");
+		}
+		
 		window.onload = function()
 		{
+			alert("Creating socket...");
 			sock = new WebSocket("ws://raspberrypi:9998/");
-			sock.onopen = function(e) { alert("opened"); }
+			sock.onopen = function(e) { alert("opened"); setTimeout(keepAlive, 20000); }
 			sock.onclose = function(e) { alert("closed"); }
 			sock.onmessage = function(e)
 			{
@@ -227,19 +233,15 @@
 					]
 				);
 				
+				document.getElementById('upload_progress').innerHTML = 'Press the icon to upload or take a picture from your device';
+				
 				// Close the popup again after 5 secs
 				setTimeout(closeNewImagePopup, 5000);		
 				
 				var msg = "image_upload " + splitStr[1];
 
 				//alert("Uploaded " + msg);
-				var s = new WebSocket("ws://raspberrypi:9998/");
-				s.onopen = function(e) { /*alert("opened");*/ s.send(msg); }
-				s.onclose = function(e) { /*alert("closed");*/ }
-				s.onmessage = function(e)
-				{
-					//alert("Successfully uploaded image!");
-				}
+				sock.send(msg); }
 			}
 		}
 
@@ -247,10 +249,10 @@
 		function uploadProgress(evt) {
 			if (evt.lengthComputable) {
 				var percentComplete = Math.round(evt.loaded * 100 / evt.total);
-				document.getElementById('progress_slide').innerHTML = percentComplete.toString() + '%';
+				document.getElementById('upload_progress').innerHTML = percentComplete.toString() + '%';
 			}
 			else {
-				document.getElementById('progress_slide').innerHTML = 'unable to compute';
+				document.getElementById('upload_progress').innerHTML = 'unable to compute';
 			}
 		}
  

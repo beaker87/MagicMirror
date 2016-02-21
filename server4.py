@@ -136,6 +136,9 @@ class WebSocket(object):
 
             tkns = m_msg.split()           
 
+            if tkns[0] == "keepalive":
+                print("Port %d keepalive" % self.server.port)
+
             if tkns[0] == "ready":
                 print( "Webpage is ready, waiting for external events" )
                 

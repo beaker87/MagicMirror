@@ -122,6 +122,13 @@
 			}
 		}
 
+		var sock;
+
+        function keepAlive()
+        {
+			sock.send("keepalive");
+		}
+
 		window.onload = function() {
 			
 <?php $displaySlideshow = True; ?>
@@ -152,10 +159,10 @@
 <?php } ?>
 			var buttonstate = 0;
 					
-			var s = new WebSocket("ws://localhost:9999/");
-			s.onopen = function(e) { /*alert("opened");*/ s.send("ready"); }
-			s.onclose = function(e) { /*alert("closed");*/ }
-			s.onmessage = function(e)
+			sock = new WebSocket("ws://localhost:9999/");
+			sock.onopen = function(e) { /*alert("opened");*/ sock.send("ready"); setTimeout(keepAlive, 20000); }
+			sock.onclose = function(e) { /*alert("closed");*/ }
+			sock.onmessage = function(e)
 			{
 					var str = e.data;
 					var splitStr = str.split(" ");

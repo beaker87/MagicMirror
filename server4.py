@@ -14,7 +14,6 @@ import picamera
 import Queue
 import os
 from pwd import getpwnam
-#import os,sys
 
 # Simple WebSocket server implementation. Handshakes with the client then echos back everything
 # that is received. Has no dependencies (doesn't require Twisted etc) and works with the RFC6455
@@ -276,27 +275,39 @@ class WebSocket(object):
 
                 if tkns[1] == "image_effect":
                     if self.camera is not None:
-                        print("Setting camera effect: %s" % tkns[2])
-                        # TODO needs a try/catch - some effects might not work
-                        self.camera.image_effect = tkns[2]
+                        try:
+                            print("Setting camera effect: %s" % tkns[2])
+                            self.camera.image_effect = tkns[2]
+                        except:
+                            print("That effect did not work! Exception = %s" % sys.exc_info()[0])
+                            pass
 
                 if tkns[1] == "awb_mode":
                     if self.camera is not None:
-                        print("Setting AWB mode: %s" % tkns[2])
-                        # TODO needs a try/catch - some modes might not work
-                        self.camera.awb_mode = tkns[2]
+                        try:
+                            print("Setting AWB mode: %s" % tkns[2])
+                            self.camera.awb_mode = tkns[2]
+                        except:
+                            print("AWB mode %s did not work!" % tkns[2])
+                            pass
 
                 if tkns[1] == "exposure_mode":
                     if self.camera is not None:
-                        print("Setting exposure mode: %s" % tkns[2])
-                        # TODO needs a try/catch - some modes might not work
-                        self.camera.exposure_mode = tkns[2]
+                        try:
+                            print("Setting exposure mode: %s" % tkns[2])
+                            self.camera.exposure_mode = tkns[2]
+                        except:
+                            print("Exposure mode %s did not work!" % tkns[2])
+                            pass
 
                 if tkns[1] == "meter_mode":
                     if self.camera is not None:
-                        print("Setting meter mode: %s" % tkns[2])
-                        # TODO needs a try/catch - some modes might not work
-                        self.camera.meter_mode = tkns[2]
+                        try:
+                            print("Setting meter mode: %s" % tkns[2])
+                            self.camera.meter_mode = tkns[2]
+                        except:
+                            print("Meter mode %s did not work!" % tkns[2])
+                            pass
 						
 
             #else:

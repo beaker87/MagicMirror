@@ -295,6 +295,7 @@
 					<input type="range" name="contrast" min="-10" max="10" onChange="setCameraParam('contrast',this.value * 10);">Contrast</input>
 					<input type="range" name="saturation" min="-10" max="10" onChange="setCameraParam('saturation',this.value * 10);">Saturation</input>
 					<input type="range" name="sharpness" min="-10" max="10" onChange="setCameraParam('sharpness',this.value * 10);">Sharpness</input>
+					<label for="image_effect">Effect</label>
 					<select name="image_effect" onChange="setCameraParam('image_effect', this.value);">
 						<option value="none">None</option>
 						<option value="negative">Negative</option>
@@ -319,6 +320,7 @@
 						<option value="deinterlace1">Deinterlace 1</option>
 						<option value="deinterlace2">Deinterlace 2</option>
 					</select>
+					<label for="awb_mode">AWB Mode</label>
 					<select name="awb_mode" onChange="setCameraParam('awb_mode', this.value);">
 						<option value="auto">Auto</option>
 						<option value="sunlight">Sunlight</option>
@@ -330,6 +332,7 @@
 						<option value="flash">Flash</option>
 						<option value="horizon">Horizon</option>
 					</select>
+					<label for="exposure_mode">Exposure Mode</label>
 					<select name="exposure_mode" onChange="setCameraParam('exposure_mode', this.value);">
 						<option value="auto">Auto</option>
 						<option value="night">Night</option>
@@ -344,6 +347,7 @@
 						<option value="antishake">Anti-shake</option>
 						<option value="fireworks">Fireworks</option>
 					</select>
+					<label for="meter_mode">Meter Mode</label>
 					<select name="meter_mode" onChange="setCameraParam('meter_mode', this.value);">
 						<option value="average">Average</option>
 						<option value="spot">Spot</option>

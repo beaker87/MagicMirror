@@ -85,6 +85,13 @@ class WebSocket(object):
     def __del__(self):
 		print("WebSocket destructor")
 
+    def startcamera(self):
+        if self.camera is None:
+            print("Starting camera")
+            self.camera = picamera.PiCamera()
+            self.camera.start_preview()
+        print("Camera started")
+
     def stopcamera(self):
         if self.camera is not None:
             print("Stopping camera")
@@ -159,53 +166,43 @@ class WebSocket(object):
                         self.sendMessage(''.join(mmsg).strip())
 
                     if cmd[0] == "BUT_B":
-                        print("Initialising camera")
-                        # set up camera
-                        camera = picamera.PiCamera()
+                        if self.camera is None:
+                            self.startcamera()
+                            time.sleep(3)
 
-                        # Take picture
-                        #print("Taking picture in 3...")
-                        #time.sleep(1)
-                        #print("2...")
-                        #time.sleep(1)
-                        #print("1...")
-                        #time.sleep(1)
+                            timestamp = int(time.time())
+                            filename = 'capture_%d.jpg' % timestamp
+                            thumbfilename = 'capture_%d_thumb.jpg' % timestamp
+                            capfilename = "uploads/%s" % filename
 
-                        timestamp = int(time.time())
-                        filename = 'capture_%d.jpg' % timestamp
-                        thumbfilename = 'capture_%d_thumb.jpg' % timestamp
-                        capfilename = "uploads/%s" % filename
+                            # Take the picture
+                            self.camera.capture(capfilename)
+                            
+                            print("DONE")
 
-                        # Do a 10 second camera preview
-                        camera.start_preview()
-                        time.sleep(10)
-                        camera.capture(capfilename)
-                        camera.stop_preview()
-                        
-                        print("DONE")
+                            self.stopcamera()
 
-                        # Shutdown camera
-                        camera.close()
+                            # Not pretty, but we need to chown this new file to www-data
+                            # or php won't have access to be able to resize / copy it
+                            myuid = getpwnam('www-data').pw_uid
+                            os.chown(capfilename, myuid, -1)
 
-                        # Not pretty, but we need to chown this new file to www-data
-                        # or php won't have access to be able to resize / copy it
-                        myuid = getpwnam('www-data').pw_uid
-                        os.chown(capfilename, myuid, -1)
+                            txmsg = "BUT_B %s" % filename
+                            #self.msgqueue.put(qmsg)
+                            
+                            print("Sending %s to webpage" % txmsg)
+                            self.sendMessage(''.join(txmsg).strip());
 
-                        txmsg = "BUT_B %s" % filename
-                        #self.msgqueue.put(qmsg)
-                        
-                        print("Sending %s to webpage" % txmsg)
-                        self.sendMessage(''.join(txmsg).strip());
+                            imgtodel = "uploads/%s" % thumbfilename
+                            
+                            time.sleep(5)
+                            
+                            print("Deleting %s" % imgtodel)
 
-                        imgtodel = "uploads/%s" % thumbfilename
-                        
-                        time.sleep(5)
-                        
-                        print("Deleting %s" % imgtodel)
-
-                        # Delete image
-                        os.remove( imgtodel )
+                            # Delete image
+                            os.remove( imgtodel )
+                        else:
+                            self.stopcamera()
 
                     self.msgqueue.task_done()
 
@@ -221,9 +218,7 @@ class WebSocket(object):
             if tkns[0] == "camera":
                 if tkns[1] == "start":
                     if self.camera is None:
-                        print("Starting camera")
-                        self.camera = picamera.PiCamera()
-                        self.camera.start_preview()
+                        self.startcamera()
                     else:
                         print("Nothing to do, camera already started")
 

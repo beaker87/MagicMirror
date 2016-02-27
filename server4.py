@@ -37,8 +37,8 @@ gpio.setmode(gpio.BCM)
 gpio.setup(BUTTON_A_IN, gpio.IN)
 gpio.setup(BUTTON_B_IN, gpio.IN)
 
-button_a_last_event = int(time.time()) - 1
-button_b_last_event = int(time.time()) - 1
+button_a_last_rise = int(time.time()) - 1
+button_b_last_rise = int(time.time()) - 1
 
 # set up queue
 queue = Queue.Queue()
@@ -163,6 +163,12 @@ class WebSocket(object):
 
                         # Delete image
                         os.remove( imgtodel )
+
+                    if cmd[0] == "BUT_A_HOLD":
+                        print( "Button A was held" )
+
+                    if cmd[0] == "BUT_B_HOLD":
+                        print( "Button B was held" )
 
                     if cmd[0] == "BUT_A":
                         self.sendMessage(''.join(mmsg).strip())
@@ -501,23 +507,52 @@ class WebSocketServer(object):
         print("Telling cls to stop")
         self.cls.running = False
 
-def buttona_handler(BUTTON_A_IN):
-    global button_a_last_event
+def buttona_rise_handler(BUTTON_A_IN):
+    global button_a_last_rise
     ts = int(time.time())
-    if button_a_last_event != ts:
-        button_a_last_event = ts
-        tx_msg = "BUT_A"
-        print("[handler] Button A pressed!")
+    if button_a_last_rise != ts:
+        button_a_last_rise = ts
+
+#        tx_msg = "BUT_A"
+#        print("[handler] Button A pressed!")
+#        queue.put(tx_msg)
+
+def buttonb_rise_handler(BUTTON_B_IN):
+    global button_b_last_rise
+    ts = int(time.time())    
+    if button_b_last_rise != ts:
+        button_b_last_rise = ts
+
+#        tx_msg = "BUT_B"
+#        print("[handler] Button B pressed!")
+#        queue.put(tx_msg)
+
+def buttona_fall_handler(BUTTON_A_IN):
+    global button_a_last_rise
+    ts = int(time.time())
+    diff = ts - button_a_last_rise
+    if ( diff > 0 ):
+        if ( diff >= 3 ):
+            tx_msg = "BUT_A_HOLD"
+            print("[handler] Button A was held for %d secs" % diff)
+        else:
+            tx_msg = "BUT_A"
+            print("[handler] Button A was pressed!")
         queue.put(tx_msg)
 
-def buttonb_handler(BUTTON_B_IN):
-    global button_b_last_event
+def buttonb_fall_handler(BUTTON_B_IN):
+    global button_b_last_rise
     ts = int(time.time())
-    if button_b_last_event != ts:
-        button_b_last_event = ts
-        tx_msg = "BUT_B"
-        print("[handler] Button B pressed!")
+    diff = ts - button_b_last_rise
+    if ( diff > 0 ):
+        if ( diff >= 3 ):
+            tx_msg = "BUT_B_HOLD"
+            print("[handler] Button B was held for %d secs" % diff)
+        else:
+            tx_msg = "BUT_B"
+            print("[handler] Button B was pressed!")
         queue.put(tx_msg)
+
 
 # Entry point
 if __name__ == "__main__":
@@ -540,8 +575,11 @@ if __name__ == "__main__":
     upload_server_thread.daemon = True
     upload_server_thread.start()
 
-    gpio.add_event_detect(BUTTON_A_IN, gpio.RISING, callback=buttona_handler)
-    gpio.add_event_detect(BUTTON_B_IN, gpio.RISING, callback=buttonb_handler)
+    # Register button event handlers
+    gpio.add_event_detect(BUTTON_A_IN, gpio.RISING, callback=buttona_rise_handler)
+    gpio.add_event_detect(BUTTON_B_IN, gpio.RISING, callback=buttonb_rise_handler)
+    gpio.add_event_detect(BUTTON_A_IN, gpio.FALLING, callback=buttona_fall_handler)
+    gpio.add_event_detect(BUTTON_B_IN, gpio.FALLING, callback=buttonb_fall_handler)
     
     # Add SIGINT handler for killing the threads
     def signal_handler(signal, frame):

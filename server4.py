@@ -166,16 +166,22 @@ class WebSocket(object):
                         # Delete image
                         os.remove( imgtodel )
 
+                    if cmd[0] == "BUT_A_DOWN":
+                        print("Button A has been pressed")
+                        self.sendMessage(''.join(mmsg).strip())
+
                     if cmd[0] == "BUT_A_HOLD":
+                        print("Button A has been released")
                         print( "Button A was held" )
                         #TODO - some other function
+
+                    if cmd[0] == "BUT_A":
+                        print("Button A has been released")
+                        self.sendMessage(''.join(mmsg).strip())
 
                     if cmd[0] == "BUT_B_HOLD":
                         print( "Button B was held" )
                         #TODO - some other function
-
-                    if cmd[0] == "BUT_A":
-                        self.sendMessage(''.join(mmsg).strip())
 
                     if cmd[0] == "BUT_B":
                         if self.camera is None:
@@ -538,6 +544,7 @@ def buttona_handler(BUTTON_A_IN):
             #print ("Rising edge detected on %d" % BUTTON_A_IN)
             if button_a_last_rise != ts:
                 button_a_last_rise = ts
+                queue.put("BUT_A_DOWN")
 
 def buttonb_handler(BUTTON_B_IN):
     global button_b_last_rise

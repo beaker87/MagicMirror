@@ -187,14 +187,23 @@
 						setTimeout(closeNewImagePopup, 5000);
 					}
 					
+					if ( rx_msg == "BUT_A_DOWN" )
+					{
+						// Button A pressed down
+						console.log("Button A pressed down...");
+					}
+					
 					if ( rx_msg == "BUT_A" )
 					{
+						console.log("Button A released!");
+						
 						// Button A pressed - fade pictures and show dashboard
 						if ( buttonstate == 1 )
 						{
-							buttonstate = 0;
+							console.log("Change interface?");
+							//buttonstate = 0;
 <?php if ( $displaySlideshow ) { ?>
-							jssor_slider1.$Play();
+							//jssor_slider1.$Play();
 <?php } ?>
 						}
 						else

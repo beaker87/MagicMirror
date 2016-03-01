@@ -192,6 +192,29 @@
 						// Button A pressed down
 						console.log("Button A pressed down...");
 					}
+
+					if ( rx_msg == "BUT_A_HOLD" )
+					{
+						// Button A held (released)
+						console.log("Button A released! It was held for > 3 secs");
+					}
+
+					if ( rx_msg == "BUT_B_DOWN" )
+					{
+						// Button B pressed down
+						console.log("Button B pressed down...");
+						
+						// Display camera icon
+						document.getElementById("camera_icon").style.display = 'block';
+					}
+
+					if ( rx_msg == "BUT_B_HOLD" )
+					{
+						// Button B held (released)
+						console.log("Button B released! It was held for > 3 secs");
+						document.getElementById("camera_icon").style.display = 'none';
+					}
+
 					
 					if ( rx_msg == "BUT_A" )
 					{
@@ -322,6 +345,8 @@ foreach (glob("uploads/*") as $filename) {
     </div>
 </div>
 <?php } ?>
+
+<div id="camera_icon" style="position: relative; top: 0px; left: 0px; width: 105px; height: 105px; background-image: url('images/camera_icon.png'); background-repeat: no-repeat; display: none;"></div>
 
 </body>
 </html>

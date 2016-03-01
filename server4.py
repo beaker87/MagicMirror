@@ -143,6 +143,8 @@ class WebSocket(object):
 
             if tkns[0] == "ready":
                 print( "Webpage is ready, waiting for external events" )
+
+                # TODO - clear all events on the queue, in case any were raised before we were ready.
                 
                 while self.running:
                     mmsg = self.msgqueue.get()
@@ -171,17 +173,24 @@ class WebSocket(object):
                         self.sendMessage(''.join(mmsg).strip())
 
                     if cmd[0] == "BUT_A_HOLD":
-                        print("Button A has been released")
-                        print( "Button A was held" )
-                        #TODO - some other function
+                        print("Button A has been released - it was held > 3 secs")
+                        self.sendMessage(''.join(mmsg).strip())
+                        
+                        #TODO - some other function. 
 
                     if cmd[0] == "BUT_A":
                         print("Button A has been released")
                         self.sendMessage(''.join(mmsg).strip())
 
+                    if cmd[0] == "BUT_B_DOWN":
+                        print("Button B has been pressed")
+                        self.sendMessage(''.join(mmsg).strip())
+
                     if cmd[0] == "BUT_B_HOLD":
-                        print( "Button B was held" )
-                        #TODO - some other function
+                        print( "Button B has been released - it was held > 3 secs" )
+                        self.sendMessage(''.join(mmsg).strip())
+
+                        #TODO - video function
 
                     if cmd[0] == "BUT_B":
                         if self.camera is None:
@@ -555,7 +564,7 @@ def buttonb_handler(BUTTON_B_IN):
 
     if ( button_b_last_event != button_event ): # Only detect changes
         button_b_last_event = button_event
-        if button_event:
+        if button_event:  
             #print ("Falling edge detected on %d" % BUTTON_B_IN)
             diff = ts - button_b_last_rise
             #print ("ts is %d" % ts)
@@ -573,7 +582,7 @@ def buttonb_handler(BUTTON_B_IN):
             #print ("Rising edge detected on %d" % BUTTON_B_IN)
             if button_b_last_rise != ts:
                 button_b_last_rise = ts
-
+                queue.put("BUT_B_DOWN")
 
 #        tx_msg = "BUT_A"
 #        print("[handler] Button A pressed!")

@@ -381,7 +381,8 @@ foreach (glob("uploads/*") as $filename) {
 </div>
 <?php } ?>
 
-<div id="camera_icon" style="position: relative; top: 0px; left: 0px; width: 105px; height: 105px; background-image: url('images/camera_icon.png'); background-repeat: no-repeat; display: none;"></div>
+<div 
+<div id="camera_icon" class="cameraicon"></div>
 
 </body>
 </html>

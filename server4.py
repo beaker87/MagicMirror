@@ -221,13 +221,30 @@ class WebSocket(object):
                             self.sendMessage(''.join(txmsg).strip());
 
                             imgtodel = "uploads/%s" % thumbfilename
-                            
-                            time.sleep(5)
-                            
-                            print("Deleting %s" % imgtodel)
 
-                            # Delete image
-                            os.remove( imgtodel )
+                            imgDelTimeout = 30
+                            fileDoesNotExist = True
+
+                            if os.path.isfile(imgtodel):
+                                fileDoesNotExist = False
+
+                            while (fileDoesNotExist and (imgDelTimeout > 0)):
+                                if os.path.isfile(imgtodel):
+                                    fileDoesNotExist = False
+                                else:
+                                    print("%s does not exist yet, waiting..." % imgtodel)
+                                    imgDelTimeout = imgDelTimeout - 1;
+                                    time.sleep(1)
+
+                            if fileDoesNotExist == False:                                
+                                print("Deleting %s after 3 secs..." % imgtodel)
+                                time.sleep(3)
+                                # Delete image
+                                os.remove( imgtodel )
+                                print("%s deleted" % imgtodel)
+                            else:
+                                print("Timed out waiting for %s to exist!!" % imgtodel)
+                                
                         else:
                             self.stopcamera()
 

@@ -289,6 +289,7 @@
 					{
 						// Button B pressed - camera preview / snapshot
 						//alert("Camera button pressed! Filename = " + splitStr[1]);
+						$('#camera_icon').css("display", "none");
 						resizeImage(splitStr[1]); // Need to resize this image before displaying it
 					}
 				}

@@ -11,6 +11,8 @@
 	<script type="text/javascript" src="js/jquery.fancybox.pack.js?v=2.1.5"></script>
 	<link rel="stylesheet" type="text/css" href="css/jquery.fancybox.css?v=2.1.5" media="screen" />
 	
+	<script src="js/circle-progress.js"></script>
+	
 	<script type="text/javascript">
 		var gitHash = '<?php echo trim(`git rev-parse HEAD`) ?>';
 
@@ -121,13 +123,50 @@
 				setTimeout(closeNewImagePopup, 5000);
 			}
 		}
+		
+		var c_interval = 3000;
+		
+		function docameraprogress()
+		{
+			var camicon = $('#camera_icon')
+			
+			camicon.circleProgress({
+				startAngle: -1.57, // - Math.PI / 2
+				value: 0.0,
+				size: 105,
+				animation: { duration: c_interval },
+				fill: {
+					gradient: [ "red", "red", "orange" ]
+				}
+			});
+			
+			camicon.css("background-image", "url('images/camera_icon.png')");  
+			camicon.css("display", "block");  
+			
+			//console.log("updatecircle 1");
+			camicon.circleProgress('value', 1);
+			//setTimeout(changecameraicon, c_interval);
+			
+			camicon.one( "circle-animation-end", function() {
+				camicon.css("background-image", "url('images/video_icon.png')");  
+				/*var image = $('#camera_icon');
+				image.fadeOut(500, function () {
+					image.css("background", "url('images/video_icon.png')");
+					image.fadeIn(500);
+				});*/
+				//console.log("animation ended");
+			} );
+		}
 
 		var sock;
 
-        function keepAlive()
-        {
-			sock.send("keepalive");
-		}
+		window.setInterval(function(){
+			if ( sock )
+			{
+				console.log("keepalive");
+				sock.send("keepalive");
+			}
+		}, 20000);
 
 		window.onload = function() {
 			
@@ -160,7 +199,7 @@
 			var buttonstate = 0;
 					
 			sock = new WebSocket("ws://localhost:9999/");
-			sock.onopen = function(e) { /*alert("opened");*/ sock.send("ready"); setTimeout(keepAlive, 20000); }
+			sock.onopen = function(e) { /*alert("opened");*/ sock.send("ready"); }
 			sock.onclose = function(e) { /*alert("closed");*/ }
 			sock.onmessage = function(e)
 			{
@@ -205,14 +244,15 @@
 						console.log("Button B pressed down...");
 						
 						// Display camera icon
-						document.getElementById("camera_icon").style.display = 'block';
+						docameraprogress();
+						//document.getElementById("camera_icon").style.display = 'block';
 					}
 
 					if ( rx_msg == "BUT_B_HOLD" )
 					{
 						// Button B held (released)
 						console.log("Button B released! It was held for > 3 secs");
-						document.getElementById("camera_icon").style.display = 'none';
+						$('#camera_icon').css("display", "none");
 					}
 
 					
@@ -320,12 +360,7 @@ function initMap()
 	  });
 }
 </script>
-<!--
-<script type="text/javascript"> 
 
-	
-</script>
--->
 <?php if ( $displaySlideshow ) { ?>
 <div id="slider1_container" style="position: relative; top: 0px; left: 0px; width: 1920px; height: 1080px;">
     <!-- Slides Container -->

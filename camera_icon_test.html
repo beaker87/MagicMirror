@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Tests for jquery-circle-progress</title>
+</head>
+<body bgcolor="#aaaaaa">
+
+    <script src="js/jquery.js"></script>
+    <script src="js/circle-progress.js"></script>
+	
+	<div id="camera_icon" style="position: relative; top: 0px; left: 0px; width: 105px; height: 105px; background-image: url('images/camera_icon.png'); background-repeat: no-repeat;"></div>
+
+	
+<script type="text/javascript">
+
+	window.onload = function()
+	{
+		$('#camera_icon').css("display", "none");  
+	}
+
+	var c_interval = 3000;
+
+	function docameraprogress()
+	{
+		var camicon = $('#camera_icon')
+		
+		camicon.circleProgress({
+			startAngle: -1.57, // - Math.PI / 2
+			value: 0.0,
+			size: 105,
+			animation: { duration: c_interval },
+			fill: {
+				gradient: [ "red", "red", "orange" ]
+			}
+		});
+		
+		camicon.css("background-image", "url('images/camera_icon.png')");  
+		camicon.css("display", "block");  
+		
+		console.log("updatecircle 1");
+		camicon.circleProgress('value', 1);
+		//setTimeout(changecameraicon, c_interval);
+		
+		camicon.one( "circle-animation-end", function() {
+			camicon.css("background-image", "url('images/video_icon.png')");  
+			/*var image = $('#camera_icon');
+			image.fadeOut(500, function () {
+				image.css("background", "url('images/video_icon.png')");
+				image.fadeIn(500);
+			});*/
+			console.log("animation ended");
+		} );
+	}
+
+</script>
+
+	<input type="button" value="Redraw" onclick="docameraprogress();" />
+		
+	
+</body>
+</html>

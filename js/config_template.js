@@ -38,7 +38,10 @@ var config = {
         url: "ICAL_URL"
     },
 	map: {
-		apikey: "GOOGLE_MAPS_API_KEY"
+		apikey: "GOOGLE_MAPS_API_KEY",
+		center: {lat: 0.0, lng: -0.0},
+		home: {lat: 0.0, lng: -0.0},
+		work: {lat: 0.0, lng: -0.0}
 	},
     news: {
     	feed: 'http://feeds.bbci.co.uk/news/rss.xml?edition=uk'

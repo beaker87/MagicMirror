@@ -195,6 +195,8 @@
 			};
 			
 			var jssor_slider1 = new $JssorSlider$('slider1_container', options);
+<?php } else { ?>
+loadInterface();
 <?php } ?>
 			var buttonstate = 0;
 					
@@ -333,7 +335,7 @@ function initMap()
 	
   var map = new google.maps.Map(document.getElementById('map'), {
     zoom: 13,
-    center: {lat: 51.4775299, lng: -2.5591715},
+	center: {lat: config.map.center.lat, lng: config.map.center.lng},
     mapTypeControlOptions: { mapTypeIds: [google.maps.MapTypeId.ROADMAP, customMapTypeId] },
     disableDefaultUI: true
   });
@@ -345,7 +347,7 @@ function initMap()
   trafficLayer.setMap(map);
 
   var homemarker = new google.maps.Marker({
-	    position: {lat: 51.4619409, lng: -2.6026915},
+	    position: {lat: config.map.home.lat, lng: config.map.home.lng},
 	    map: map,
 	    animation: google.maps.Animation.DROP,
 	    title: 'Home',
@@ -353,7 +355,7 @@ function initMap()
 	  });
 
   var workmarker = new google.maps.Marker({
-	  	position: {lat: 51.5024714, lng: -2.5547415},
+		position: {lat: config.map.work.lat, lng: config.map.work.lng},
 	  	map: map,
 	  	animation: google.maps.Animation.DROP,
 	  	title: 'Work',

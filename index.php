@@ -350,21 +350,16 @@ function initMap()
   var trafficLayer = new google.maps.TrafficLayer();
   trafficLayer.setMap(map);
 
-  var homemarker = new google.maps.Marker({
-	    position: {lat: config.map.home.lat, lng: config.map.home.lng},
-	    map: map,
-	    animation: google.maps.Animation.DROP,
-	    title: 'Home',
-	    label: 'H'
-	  });
-
-  var workmarker = new google.maps.Marker({
-		position: {lat: config.map.work.lat, lng: config.map.work.lng},
-	  	map: map,
-	  	animation: google.maps.Animation.DROP,
-	  	title: 'Work',
-		label: 'W'
-	  });
+  for( m = 0; m < config.map.markers.length; m ++ )
+  {
+	var marker = new google.maps.Marker({
+		position: {lat: config.map.markers[m].lat, lng: config.map.markers[m].lng},
+		map: map,
+		animation: google.maps.Animation.DROP,
+		title: config.map.markers[m].title,
+		label: config.map.markers[m].label
+	});
+  }
 }
 </script>
 

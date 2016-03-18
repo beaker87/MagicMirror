@@ -40,8 +40,10 @@ var config = {
 	map: {
 		apikey: "GOOGLE_MAPS_API_KEY",
 		center: {lat: 0.0, lng: -0.0},
-		home: {lat: 0.0, lng: -0.0},
-		work: {lat: 0.0, lng: -0.0}
+		markers: [ 
+			{ title: 'home', label: 'H', lat: 0.0, lng: -0.0 },
+			{ title: 'work', label: 'W', lat: 0.0, lng: -0.0 }
+		]
 	},
     news: {
     	feed: 'http://feeds.bbci.co.uk/news/rss.xml?edition=uk'

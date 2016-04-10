@@ -254,7 +254,6 @@
 						console.log("Button B released! It was held for > 3 secs");
 						$('#camera_icon').css("display", "none");
 					}
-
 					
 					if ( rx_msg == "BUT_A" )
 					{

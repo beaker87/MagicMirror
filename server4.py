@@ -274,7 +274,7 @@ class WebSocket(object):
                 print("Image has been uploaded - filename %s" % tkns[1])
                 imgmsg = "IMG_UPLOAD %s" % tkns[1]
                 self.msgqueue.put(imgmsg)
-                self.sendMessage("done")                
+                self.sendMessage("done")           
 
             if tkns[0] == "camera":
                 if tkns[1] == "start":
@@ -306,18 +306,13 @@ class WebSocket(object):
 
                         txmsg = "capture %s" % filename
                         #self.msgqueue.put(qmsg)
-                        
+
+                        imgtowait = "uploads/%s" % thumbfilename
+                      
+                        time.sleep(2)
+
                         print("Sending %s to webpage" % txmsg)
                         self.sendMessage(''.join(txmsg).strip());
-
-                        imgtodel = "uploads/%s" % thumbfilename
-                        
-                        time.sleep(3)
-                        
-                        print("Deleting %s" % imgtodel)
-
-                        # Delete image
-                        os.remove( imgtodel )
                         
                 if tkns[1] == "brightness":
                     if self.camera is not None:

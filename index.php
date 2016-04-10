@@ -59,7 +59,7 @@
 
 			calendar.init();
 
-			compliments.init();
+			//compliments.init();
 
 			weather.init();
 			
@@ -188,7 +188,7 @@
 			var options = {
 			    $FillMode: 1,
 			    $AutoPlay: true,
-			    $Idle: 30000,
+			    $Idle: 10000,
 			    $SlideshowOptions: {
 			            $Class: $JssorSlideshowRunner$,
 			            $Transitions: _SlideshowTransitions,
@@ -306,7 +306,7 @@ loadInterface();
 
 	<div class="top left"><div class="date small dimmed"></div><div class="time"></div><div class="calendar xxsmall"></div></div>
 	<div class="top right"><div class="windsun small dimmed"></div><div class="temp"></div><div class="forecast small dimmed"></div></div>
-	<div class="bottom left-zero"><div id="map" style="width:600px; height:600px;"></div></div>
+	<div class="bottom center-hor"><div id="map" style="width:600px; height:600px; margin-left:auto; margin-right:auto;"></div></div>
 	<div class="lower-third center-hor"><div class="compliment light"></div></div>
 	<!--<div class="bottom center-hor"><div class="news medium"></div></div>-->
 

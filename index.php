@@ -13,6 +13,21 @@
 	
 	<script src="js/circle-progress.js"></script>
 	
+	<script src="js/jquery.feedToJSON.js"></script>
+<script src="js/ical_parser.js"></script>
+<script src="js/moment-with-locales.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/rrule.js"></script>
+<script src="js/version/version.js" type="text/javascript"></script>
+<script src="js/calendar/calendar.js" type="text/javascript"></script>
+<script src="js/compliments/compliments.js" type="text/javascript"></script>
+<script src="js/weather/weather.js" type="text/javascript"></script>
+<script src="js/time/time.js" type="text/javascript"></script>
+<!--<script src="js/news/news.js" type="text/javascript"></script>-->
+<script src="js/main.js?nocache=<?php echo md5(microtime()) ?>"></script>
+<!-- <script src="js/socket.io.min.js"></script> -->
+<script src="js/jssor.slider.mini.js"></script>
+	
 	<script type="text/javascript">
 		var gitHash = '<?php echo trim(`git rev-parse HEAD`) ?>';
 
@@ -160,6 +175,35 @@
 				//console.log("animation ended");
 			} );
 		}
+		
+		var jssor_slider1;
+		
+		var buttonstate = 0;
+		
+		function CloseSlideshowAndDisplayInterface()
+		{
+			console.log("Button A released!");
+			
+			// Button A pressed - fade pictures and show dashboard
+			if ( buttonstate == 1 )
+			{
+				console.log("Change interface?");
+				//buttonstate = 0;
+				//jssor_slider1.$Play();
+			}
+			else
+			{
+				// Pause
+				//$('#slider1_container').fadeToBlack(4000);
+				$("#slider1_container").remove();
+				jssor_slider1 = undefined;
+				
+				loadInterface();
+				
+				//jssor_slider1.$Pause();
+				buttonstate = 1;
+			}
+		}
 
 		var sock;
 
@@ -173,35 +217,29 @@
 
 		window.onload = function() {
 			
-<?php $displaySlideshow = True; ?>
-<?php if ( $displaySlideshow ) { ?>
-
 			document.getElementById("slider1_container").style.width=getWidth();
 			document.getElementById("slidesinner").style.width=getWidth();
 			document.getElementById("slider1_container").style.height=getHeight();
 			document.getElementById("slidesinner").style.height=getHeight();
-
+			
 			var _SlideshowTransitions = [
 				{$Duration:2000,$Opacity:2}
 			];
 			
 			var options = {
-			    $FillMode: 1,
-			    $AutoPlay: true,
-			    $Idle: 10000,
-			    $SlideshowOptions: {
-			            $Class: $JssorSlideshowRunner$,
-			            $Transitions: _SlideshowTransitions,
-			            $TransitionsOrder: 1,
-			            $ShowLink: true
-			        }
+				$FillMode: 1,
+				$AutoPlay: true,
+				$Idle: 10000,
+				$SlideshowOptions: {
+						$Class: $JssorSlideshowRunner$,
+						$Transitions: _SlideshowTransitions,
+						$TransitionsOrder: 1,
+						$ShowLink: true
+					}
 			};
+		
+			jssor_slider1 = new $JssorSlider$('slider1_container', options);
 			
-			var jssor_slider1 = new $JssorSlider$('slider1_container', options);
-<?php } else { ?>
-loadInterface();
-<?php } ?>
-			var buttonstate = 0;
 					
 			sock = new WebSocket("ws://localhost:9999/");
 			sock.onopen = function(e) { /*alert("opened");*/ sock.send("ready"); }
@@ -262,31 +300,7 @@ loadInterface();
 					
 					if ( rx_msg == "BUT_A" )
 					{
-						console.log("Button A released!");
-						
-						// Button A pressed - fade pictures and show dashboard
-						if ( buttonstate == 1 )
-						{
-							console.log("Change interface?");
-							//buttonstate = 0;
-<?php if ( $displaySlideshow ) { ?>
-							//jssor_slider1.$Play();
-<?php } ?>
-						}
-						else
-						{
-							// Pause
-							//$('#slider1_container').fadeToBlack(4000);
-							$("#slider1_container").remove();
-							jssor_slider1 = undefined;
-							
-							loadInterface();
-							
-<?php if ( $displaySlideshow ) { ?>
-							//jssor_slider1.$Pause();
-<?php } ?>
-							buttonstate = 1;
-						}
+						CloseSlideshowAndDisplayInterface();
 					}
 					
 					if ( rx_msg == "BUT_B" )
@@ -301,6 +315,9 @@ loadInterface();
 	</script>
 	<meta name="google" value="notranslate" />
 	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+	
+	
+	
 </head>
 <body>
 
@@ -309,21 +326,6 @@ loadInterface();
 	<div class="bottom center-hor"><div id="map" class="map"></div></div>
 	<div class="lower-third center-hor"><div class="compliment light"></div></div>
 	<!--<div class="bottom center-hor"><div class="news medium"></div></div>-->
-
-<script src="js/jquery.feedToJSON.js"></script>
-<script src="js/ical_parser.js"></script>
-<script src="js/moment-with-locales.min.js"></script>
-<script src="js/config.js"></script>
-<script src="js/rrule.js"></script>
-<script src="js/version/version.js" type="text/javascript"></script>
-<script src="js/calendar/calendar.js" type="text/javascript"></script>
-<script src="js/compliments/compliments.js" type="text/javascript"></script>
-<script src="js/weather/weather.js" type="text/javascript"></script>
-<script src="js/time/time.js" type="text/javascript"></script>
-<!--<script src="js/news/news.js" type="text/javascript"></script>-->
-<script src="js/main.js?nocache=<?php echo md5(microtime()) ?>"></script>
-<!-- <script src="js/socket.io.min.js"></script> -->
-<script src="js/jssor.slider.mini.js"></script>
 
 <script>
 
@@ -362,8 +364,7 @@ function initMap()
 }
 </script>
 
-<?php if ( $displaySlideshow ) { ?>
-<div id="slider1_container" class="slider_container">
+<div id="slider1_container" class="slider_container" onClick="CloseSlideshowAndDisplayInterface();">
     <!-- Slides Container -->
     <div id="slidesinner" u="slides" style="cursor: move; position: absolute; overflow: hidden; left: 0px; top: 0px; width: 1920px; height: 1080px;">
 
@@ -380,7 +381,6 @@ foreach (glob("uploads/*") as $filename) {
 
     </div>
 </div>
-<?php } ?>
 
 <div 
 <div id="camera_icon" class="cameraicon"></div>

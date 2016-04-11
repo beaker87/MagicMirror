@@ -192,6 +192,8 @@ body, html {
 .map {
 	width:600px; 
 	height:600px;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 .cameraicon {

@@ -31,16 +31,24 @@ BINARY = 0x02
 
 BUTTON_A_IN = 17
 BUTTON_B_IN = 27
+BUTTON_C_IN = 22
+BUTTON_D_IN = 23
 
 #set up pins 17 & 27 as inputs
 gpio.setmode(gpio.BCM)
 gpio.setup(BUTTON_A_IN, gpio.IN)
 gpio.setup(BUTTON_B_IN, gpio.IN)
+gpio.setup(BUTTON_C_IN, gpio.IN)
+gpio.setup(BUTTON_D_IN, gpio.IN)
 
-button_a_last_rise = int(time.time()) - 1
-button_b_last_rise = int(time.time()) - 1
+button_a_last_rise = 0
+button_b_last_rise = 0
+button_c_last_rise = 0
+button_d_last_rise = 0
 button_a_last_event = -1
 button_b_last_event = -1
+button_c_last_event = -1
+button_d_last_event = -1
 
 # set up queue
 queue = Queue.Queue()
@@ -144,7 +152,9 @@ class WebSocket(object):
             if tkns[0] == "ready":
                 print( "Webpage is ready, waiting for external events" )
 
-                # TODO - clear all events on the queue, in case any were raised before we were ready.
+                # Clear all events on the queue, in case any were raised before we were ready.
+                with self.msgqueue.mutex:
+                    self.msgqueue.queue.clear()
                 
                 while self.running:
                     mmsg = self.msgqueue.get()
@@ -190,7 +200,14 @@ class WebSocket(object):
                         print( "Button B has been released - it was held > 3 secs" )
                         self.sendMessage(''.join(mmsg).strip())
 
-                        #TODO - video function
+                        #Record a video!
+                        print("Recording video...")
+                        self.startcamera()
+                        self.camera.resolution = (640, 480)
+                        self.camera.start_recording('bentest.h264')
+                        self.camera.wait_recording(10)
+                        self.camera.stop_recording()
+                        self.stopcamera()
 
                     if cmd[0] == "BUT_B":
                         if self.camera is None:
@@ -257,7 +274,7 @@ class WebSocket(object):
                 print("Image has been uploaded - filename %s" % tkns[1])
                 imgmsg = "IMG_UPLOAD %s" % tkns[1]
                 self.msgqueue.put(imgmsg)
-                self.sendMessage("done")                
+                self.sendMessage("done")           
 
             if tkns[0] == "camera":
                 if tkns[1] == "start":
@@ -289,18 +306,13 @@ class WebSocket(object):
 
                         txmsg = "capture %s" % filename
                         #self.msgqueue.put(qmsg)
-                        
+
+                        imgtowait = "uploads/%s" % thumbfilename
+                      
+                        time.sleep(2)
+
                         print("Sending %s to webpage" % txmsg)
                         self.sendMessage(''.join(txmsg).strip());
-
-                        imgtodel = "uploads/%s" % thumbfilename
-                        
-                        time.sleep(3)
-                        
-                        print("Deleting %s" % imgtodel)
-
-                        # Delete image
-                        os.remove( imgtodel )
                         
                 if tkns[1] == "brightness":
                     if self.camera is not None:
@@ -550,6 +562,9 @@ def buttona_handler(BUTTON_A_IN):
 
     button_event = gpio.input(BUTTON_A_IN)
 
+    if ( button_a_last_rise == 0 ):
+        button_a_last_rise = ts
+
     if ( button_a_last_event != button_event ): # Only detect changes
         button_a_last_event = button_event
         if button_event:  
@@ -579,6 +594,9 @@ def buttonb_handler(BUTTON_B_IN):
 
     button_event = gpio.input(BUTTON_B_IN)
 
+    if ( button_b_last_rise == 0 ):
+        button_b_last_rise = ts
+
     if ( button_b_last_event != button_event ): # Only detect changes
         button_b_last_event = button_event
         if button_event:  
@@ -600,6 +618,71 @@ def buttonb_handler(BUTTON_B_IN):
             if button_b_last_rise != ts:
                 button_b_last_rise = ts
                 queue.put("BUT_B_DOWN")
+
+def buttonc_handler(BUTTON_C_IN):
+    global button_c_last_rise
+    global button_c_last_event
+    ts = int(time.time())
+
+    button_event = gpio.input(BUTTON_C_IN)
+
+    if ( button_c_last_rise == 0 ):
+        button_c_last_rise = ts
+
+    if ( button_c_last_event != button_event ): # Only detect changes
+        button_c_last_event = button_event
+        if button_event:  
+            #print ("Falling edge detected on %d" % BUTTON_A_IN)
+            diff = ts - button_c_last_rise
+            #print ("ts is %d" % ts)
+            #print ("button_c_last_rise is %d" % button_c_last_rise)
+            #print ("diff is %d" % diff)
+            if ( diff >= 3 ):
+                tx_msg = "BUT_C_HOLD"
+                print("[handler] Button C was held for %d secs" % diff)
+            else:
+                tx_msg = "BUT_C"
+                print("[handler] Button C was pressed!")
+            queue.put(tx_msg)
+
+        else:
+            #print ("Rising edge detected on %d" % BUTTON_C_IN)
+            if button_c_last_rise != ts:
+                button_c_last_rise = ts
+                queue.put("BUT_C_DOWN")
+
+def buttond_handler(BUTTON_D_IN):
+    global button_d_last_rise
+    global button_d_last_event
+    ts = int(time.time())
+
+    button_event = gpio.input(BUTTON_D_IN)
+
+    if ( button_d_last_rise == 0 ):
+        button_d_last_rise = ts
+
+    if ( button_d_last_event != button_event ): # Only detect changes
+        button_d_last_event = button_event
+        if button_event:  
+            #print ("Falling edge detected on %d" % BUTTON_D_IN)
+            diff = ts - button_d_last_rise
+            #print ("ts is %d" % ts)
+            #print ("button_d_last_rise is %d" % button_d_last_rise)
+            #print ("diff is %d" % diff)
+            if ( diff >= 3 ):
+                tx_msg = "BUT_D_HOLD"
+                print("[handler] Button D was held for %d secs" % diff)
+            else:
+                tx_msg = "BUT_D"
+                print("[handler] Button D was pressed!")
+            queue.put(tx_msg)
+
+        else:
+            #print ("Rising edge detected on %d" % BUTTON_D_IN)
+            if button_d_last_rise != ts:
+                button_d_last_rise = ts
+                queue.put("BUT_D_DOWN")
+
 
 #        tx_msg = "BUT_A"
 #        print("[handler] Button A pressed!")
@@ -657,6 +740,8 @@ if __name__ == "__main__":
     # Register button event handlers
     gpio.add_event_detect(BUTTON_A_IN, gpio.BOTH, callback=buttona_handler)
     gpio.add_event_detect(BUTTON_B_IN, gpio.BOTH, callback=buttonb_handler)
+    gpio.add_event_detect(BUTTON_C_IN, gpio.BOTH, callback=buttonc_handler)
+    gpio.add_event_detect(BUTTON_D_IN, gpio.BOTH, callback=buttond_handler)
     
     
     # Add SIGINT handler for killing the threads

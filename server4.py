@@ -265,6 +265,11 @@ class WebSocket(object):
                         else:
                             self.stopcamera()
 
+                    if cmd[0] == "BUT_C":
+                        print("Next picture please!")
+                        self.sendMessage(''.join(mmsg).strip())
+                        
+
                     self.msgqueue.task_done()
 
                 print("Done with socket")

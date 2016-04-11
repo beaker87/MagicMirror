@@ -15,7 +15,9 @@ if (isset($_FILES['myFile'])) {
 	$tmp_filename = $_FILES['myFile']['tmp_name']; // If it doesn't work change this to 'name'
 
 	// Set up dest filename (image_timestamp.jpg)
-	$filename = $path_parts['filename'] . "_" . $timestamp . "." . $path_parts['extension'];
+	// Always rename to *.jpg, regardless of original format - as doimage.php will
+	// convert the image to a JPEG.
+	$filename = $path_parts['filename'] . "_" . $timestamp . "." . "jpg"; //$path_parts['extension'];
 	$destfilename = "uploads/" . $filename;
 	
 	// move tmp file to new destination (uploads/image_t

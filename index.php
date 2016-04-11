@@ -204,6 +204,12 @@
 				buttonstate = 1;
 			}
 		}
+		
+		function NextPicture()
+		{
+			console.log("Next picture...");
+			jssor_slider1.$Next();
+		}
 
 		var sock;
 
@@ -309,6 +315,11 @@
 						//alert("Camera button pressed! Filename = " + splitStr[1]);
 						$('#camera_icon').css("display", "none");
 						resizeImage(splitStr[1]); // Need to resize this image before displaying it
+					}
+					
+					if ( rx_msg == "BUT_C" )
+					{
+						NextPicture();
 					}
 				}
 			};

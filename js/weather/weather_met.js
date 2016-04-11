@@ -3,6 +3,41 @@ var weather = {
 	lang: config.lang || 'nl',
 	params: config.weather.params || null,
 	iconTable: {
+	
+	/*
+			0 Clear night
+			1 Sunny day
+			2 Partly cloudy (night)
+			3 Partly cloudy (day)
+			4 Not used
+			5 Mist
+			6 Fog
+			7 Cloudy
+			8 Overcast
+			9 Light rain shower (night)
+			10 Light rain shower (day)
+			11 Drizzle
+			12 Light rain
+			13 Heavy rain shower (night)
+			14 Heavy rain shower (day)
+			15 Heavy rain
+			16 Sleet shower (night)
+			17 Sleet shower (day)
+			18 Sleet
+			19 Hail shower (night)
+			20 Hail shower (day)
+			21 Hail
+			22 Light snow shower (night)
+			23 Light snow shower (day)
+			24 Light snow
+			25 Heavy snow shower (night)
+			26 Heavy snow shower (day)
+			27 Heavy snow
+			28 Thunder shower (night)
+			29 Thunder shower (day)
+			30 Thunder
+	*/
+	
 		'01d':'wi-day-sunny',
 		'02d':'wi-day-cloudy',
 		'03d':'wi-cloudy',
@@ -29,7 +64,7 @@ var weather = {
 	apiBase: 'http://api.openweathermap.org/data/',
 	weatherEndpoint: 'weather',
 	forecastEndpoint: 'forecast/daily',
-	updateInterval: config.weather.interval || 6000,
+	updateInterval: config.weather.interval || 600000,
 	fadeInterval: config.weather.fadeInterval || 1000,
 	intervalId: null
 }
@@ -66,39 +101,88 @@ weather.ms2Beaufort = function(ms) {
  */
 weather.updateCurrentWeather = function () {
 
-	console.log("Get current weather...");
+	var weatherURL = 'http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/json/' + config.weather.location + '?res=3hourly&key=' + config.weather.metapikey;
+
+	console.log ( "Getting data from " + weatherURL );
 
 	$.ajax({
 		type: 'GET',
-		url: weather.apiBase + '/' + weather.apiVersion + '/' + weather.weatherEndpoint,
+		url: weatherURL,
 		dataType: 'json',
-		data: weather.params,
+		data: '',
 		success: function (data) {
 
-			var _temperature = this.roundValue(data.main.temp),
-				_temperatureMin = this.roundValue(data.main.temp_min),
-				_temperatureMax = this.roundValue(data.main.temp_max),
-				_wind = this.roundValue(data.wind.speed),
-				_iconClass = this.iconTable[data.weather[0].icon];
+			// Get current temperature, wind speed, wind gust, weather type
+			var _temp = data.SiteRep.DV.Location.Period[0].Rep[0].T;
+			var _time = data.SiteRep.DV.Location.Period[0].Rep[0].$;
+			var _windspeed = data.SiteRep.DV.Location.Period[0].Rep[0].S;
+			var _windgust = data.SiteRep.DV.Location.Period[0].Rep[0].G;
+			var _type = data.SiteRep.DV.Location.Period[0].Rep[0].W;
+			
+			console.log ( "temp = " + _temp + " at " + _time + ", wind speed = " + _windspeed + ", wind gust = " + _windgust + ", type = " + _type);
+			console.log ( "number available time periods on this day = " + data.SiteRep.DV.Location.Period.length );
+			
+			/*
+			Significant weather as a code:
+			NA Not available
+			0 Clear night
+			1 Sunny day
+			2 Partly cloudy (night)
+			3 Partly cloudy (day)
+			4 Not used
+			5 Mist
+			6 Fog
+			7 Cloudy
+			8 Overcast
+			9 Light rain shower (night)
+			10 Light rain shower (day)
+			11 Drizzle
+			12 Light rain
+			13 Heavy rain shower (night)
+			14 Heavy rain shower (day)
+			15 Heavy rain
+			16 Sleet shower (night)
+			17 Sleet shower (day)
+			18 Sleet
+			19 Hail shower (night)
+			20 Hail shower (day)
+			21 Hail
+			22 Light snow shower (night)
+			23 Light snow shower (day)
+			24 Light snow
+			25 Heavy snow shower (night)
+			26 Heavy snow shower (day)
+			27 Heavy snow
+			28 Thunder shower (night)
+			29 Thunder shower (day)
+			30 Thunder
+			*/
+			
+			
+			var _temperatureMin = this.roundValue( 3 ), // TODO
+				_temperatureMax = this.roundValue( 50 ), // TODO
+				_wind = this.roundValue( 6 ), // TODO
+				_iconClass = 'wi-thunderstorm'; //this.iconTable[data.weather[0].icon]; // TODO
 
 			var _icon = '<span class="icon ' + _iconClass + ' dimmed wi"></span>';
 
-			var _newTempHtml = _icon + '' + _temperature + '&deg;';
+			var _newTempHtml = _icon + '' + _temp + '&deg;';
 
 			$(this.temperatureLocation).updateWithText(_newTempHtml, this.fadeInterval);
 
-			var _now = moment().format('HH:mm'),
-				_sunrise = moment(data.sys.sunrise*1000).format('HH:mm'),
-				_sunset = moment(data.sys.sunset*1000).format('HH:mm');
+			var _now = moment().format('HH:mm');
+				//_sunrise = moment(data.sys.sunrise*1000).format('HH:mm'),
+				//_sunset = moment(data.sys.sunset*1000).format('HH:mm');
 
 			var _newWindHtml = '<span class="wi wi-strong-wind xdimmed"></span> ' + this.ms2Beaufort(_wind),
-				_newSunHtml = '<span class="wi wi-sunrise xdimmed"></span> ' + _sunrise;
+				_newSunHtml = '<span class="wi wi-sunrise xdimmed"></span> ' + 'sunrise'; // TODO
 
-			if (_sunrise < _now && _sunset > _now) {
+			/*if (_sunrise < _now && _sunset > _now) {
 				_newSunHtml = '<span class="wi wi-sunset xdimmed"></span> ' + _sunset;
-			}
+			}*/
 
 			$(this.windSunLocation).updateWithText(_newWindHtml + ' ' + _newSunHtml, this.fadeInterval);
+			
 
 		}.bind(this),
 		error: function () {
@@ -112,8 +196,6 @@ weather.updateCurrentWeather = function () {
  * Updates the 5 Day Forecast from the OpenWeatherMap API
  */
 weather.updateWeatherForecast = function () {
-
-	console.log("Get forecast...");
 
 	$.ajax({
 		type: 'GET',
@@ -164,13 +246,13 @@ weather.init = function () {
 	if (this.params.cnt === undefined) {
 		this.params.cnt = 5;
 	}
-
+	
 	this.updateCurrentWeather();
-	this.updateWeatherForecast();
+	//this.updateWeatherForecast();	
 	
 	this.intervalId = setInterval(function () {
 		this.updateCurrentWeather();
-		this.updateWeatherForecast();
+		//this.updateWeatherForecast();
 	}.bind(this), this.updateInterval);
 
 }

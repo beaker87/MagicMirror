@@ -307,7 +307,7 @@ loadInterface();
 
 	<div class="top left"><div class="date small dimmed"></div><div class="time"></div><div class="calendar xxsmall"></div></div>
 	<div class="top right"><div class="windsun small dimmed"></div><div class="temp"></div><div class="forecast small dimmed"></div></div>
-	<div class="bottom left-zero"><div id="map" style="width:600px; height:600px;"></div></div>
+	<div class="bottom left-zero"><div id="map" class="map"></div></div>
 	<div class="lower-third center-hor"><div class="compliment light"></div></div>
 	<!--<div class="bottom center-hor"><div class="news medium"></div></div>-->
 
@@ -364,7 +364,7 @@ function initMap()
 </script>
 
 <?php if ( $displaySlideshow ) { ?>
-<div id="slider1_container" style="position: relative; top: 0px; left: 0px; width: 1920px; height: 1080px;">
+<div id="slider1_container" class="slider_container">
     <!-- Slides Container -->
     <div id="slidesinner" u="slides" style="cursor: move; position: absolute; overflow: hidden; left: 0px; top: 0px; width: 1920px; height: 1080px;">
 

@@ -89,6 +89,7 @@ class WebSocket(object):
         self.header = ""
         self.data = ""
         self.msgqueue = msgqueue
+        self.button_thread = None
 
     # Destructor
     def __del__(self):
@@ -108,6 +109,29 @@ class WebSocket(object):
             self.camera.close()
             self.camera = None
         print("Camera stopped")
+
+    def buttonThread(self, queue):
+        while self.running:
+            # Clear all events on the queue, in case any were raised before we were ready.
+            with queue.mutex:
+                queue.queue.clear()
+            
+            try:
+                mmsg = queue.get(block=True, timeout=5)
+                cmd = mmsg.split()
+
+                print( "WebSocket - got thread message: {0} (self.running is {1})".format(mmsg, self.running ))
+
+                self.processMessage(cmd, mmsg)               
+
+                queue.task_done()
+                
+            except:
+                ###### I expect the Timeout to happen here. But it is not.
+                print( "Timeout" );
+                pass;                        
+
+        print("Done with socket")
 
     # Serve this client
     def feed(self, data):
@@ -152,127 +176,11 @@ class WebSocket(object):
             if tkns[0] == "ready":
                 print( "Webpage is ready, waiting for external events" )
 
-                # Clear all events on the queue, in case any were raised before we were ready.
-                with self.msgqueue.mutex:
-                    self.msgqueue.queue.clear()
-                
-                while self.running:
-                    mmsg = self.msgqueue.get()
-                    
-                    cmd = mmsg.split()
-                    
-                    print( "WebSocket - got thread message: {0} (self.running is {1})".format(mmsg, self.running ))
-                    
-                    if cmd[0] == "IMG_UPLOAD":
-                        print("New image uploaded: %s" % cmd[1])
-                        txm = ''.join(mmsg).strip()
-                        print("Sending %s to webpage" % txm)
-                        self.sendMessage(txm)
-                        
-                        imgtodel = "uploads/%s" % cmd[1]
-                        
-                        time.sleep(5)
+                self.button_thread = Thread(target=self.buttonThread, args=[self.msgqueue])
 
-                        print("Deleting %s" % imgtodel)
-
-                        # Delete image
-                        os.remove( imgtodel )
-
-                    if cmd[0] == "BUT_A_DOWN":
-                        print("Button A has been pressed")
-                        self.sendMessage(''.join(mmsg).strip())
-
-                    if cmd[0] == "BUT_A_HOLD":
-                        print("Button A has been released - it was held > 3 secs")
-                        self.sendMessage(''.join(mmsg).strip())
-                        
-                        #TODO - some other function. 
-
-                    if cmd[0] == "BUT_A":
-                        print("Button A has been released")
-                        self.sendMessage(''.join(mmsg).strip())
-
-                    if cmd[0] == "BUT_B_DOWN":
-                        print("Button B has been pressed")
-                        self.sendMessage(''.join(mmsg).strip())
-
-                    if cmd[0] == "BUT_B_HOLD":
-                        print( "Button B has been released - it was held > 3 secs" )
-                        self.sendMessage(''.join(mmsg).strip())
-
-                        #Record a video!
-                        print("Recording video...")
-                        self.startcamera()
-                        self.camera.resolution = (640, 480)
-                        self.camera.start_recording('bentest.h264')
-                        self.camera.wait_recording(10)
-                        self.camera.stop_recording()
-                        self.stopcamera()
-
-                    if cmd[0] == "BUT_B":
-                        if self.camera is None:
-                            self.startcamera()
-                            time.sleep(3)
-
-                            timestamp = int(time.time())
-                            filename = 'capture_%d.jpg' % timestamp
-                            thumbfilename = 'capture_%d_thumb.jpg' % timestamp
-                            capfilename = "uploads/%s" % filename
-
-                            # Take the picture
-                            self.camera.capture(capfilename)
-                            
-                            print("DONE")
-
-                            self.stopcamera()
-
-                            # Not pretty, but we need to chown this new file to www-data
-                            # or php won't have access to be able to resize / copy it
-                            myuid = getpwnam('www-data').pw_uid
-                            os.chown(capfilename, myuid, -1)
-
-                            txmsg = "BUT_B %s" % filename
-                            #self.msgqueue.put(qmsg)
-                            
-                            print("Sending %s to webpage" % txmsg)
-                            self.sendMessage(''.join(txmsg).strip());
-
-                            imgtodel = "uploads/%s" % thumbfilename
-
-                            imgDelTimeout = 30
-                            fileDoesNotExist = True
-
-                            if os.path.isfile(imgtodel):
-                                fileDoesNotExist = False
-
-                            while (fileDoesNotExist and (imgDelTimeout > 0)):
-                                if os.path.isfile(imgtodel):
-                                    fileDoesNotExist = False
-                                else:
-                                    print("%s does not exist yet, waiting..." % imgtodel)
-                                    imgDelTimeout = imgDelTimeout - 1;
-                                    time.sleep(1)
-
-                            if fileDoesNotExist == False:                                
-                                print("Deleting %s after 3 secs..." % imgtodel)
-                                time.sleep(3)
-                                # Delete image
-                                os.remove( imgtodel )
-                                print("%s deleted" % imgtodel)
-                            else:
-                                print("Timed out waiting for %s to exist!!" % imgtodel)
-                                
-                        else:
-                            self.stopcamera()
-
-                    if cmd[0] == "BUT_C":
-                        print("Next picture please!")
-                        self.sendMessage(''.join(mmsg).strip())
-                        
-
-                    self.msgqueue.task_done()
-
-                print("Done with socket")
+                print("Starting button thread in class")
+                self.button_thread.daemon = True
+                self.button_thread.start()
 
             if tkns[0] == "image_upload":
 
@@ -379,11 +287,121 @@ class WebSocket(object):
 
             #self.sendMessage(''.join(tx_msg).strip());
 
+    def processMessage(self, cmd, mmsg):
+        print ("processMessage: cmd[0] = %s" % cmd[0])
+      
+        if cmd[0] == "IMG_UPLOAD":
+            print("New image uploaded: %s" % cmd[1])
+            txm = ''.join(mmsg).strip()
+            print("Sending %s to webpage" % txm)
+            self.sendMessage(txm)
+            
+            imgtodel = "uploads/%s" % cmd[1]
+            
+            time.sleep(5)
+
+            print("Deleting %s" % imgtodel)
+
+            # Delete image
+            os.remove( imgtodel )
+
+        if cmd[0] == "BUT_A_DOWN":
+            print("Button A has been pressed")
+            self.sendMessage(''.join(mmsg).strip())
+
+        if cmd[0] == "BUT_A_HOLD":
+            print("Button A has been released - it was held > 3 secs")
+            self.sendMessage(''.join(mmsg).strip())
+            
+            #TODO - some other function. 
+
+        if cmd[0] == "BUT_A":
+            print("Button A has been released")
+            self.sendMessage(''.join(mmsg).strip())
+
+        if cmd[0] == "BUT_B_DOWN":
+            print("Button B has been pressed")
+            self.sendMessage(''.join(mmsg).strip())
+
+        if cmd[0] == "BUT_B_HOLD":
+            print( "Button B has been released - it was held > 3 secs" )
+            self.sendMessage(''.join(mmsg).strip())
+
+            #Record a video!
+            print("Recording video...")
+            self.startcamera()
+            self.camera.resolution = (640, 480)
+            self.camera.start_recording('bentest.h264')
+            self.camera.wait_recording(10)
+            self.camera.stop_recording()
+            self.stopcamera()
+
+        if cmd[0] == "BUT_B":
+            if self.camera is None:
+                self.startcamera()
+                time.sleep(3)
+
+                timestamp = int(time.time())
+                filename = 'capture_%d.jpg' % timestamp
+                thumbfilename = 'capture_%d_thumb.jpg' % timestamp
+                capfilename = "uploads/%s" % filename
+
+                # Take the picture
+                self.camera.capture(capfilename)
+                
+                print("DONE")
+
+                self.stopcamera()
+
+                # Not pretty, but we need to chown this new file to www-data
+                # or php won't have access to be able to resize / copy it
+                myuid = getpwnam('www-data').pw_uid
+                os.chown(capfilename, myuid, -1)
+
+                txmsg = "BUT_B %s" % filename
+                #self.msgqueue.put(qmsg)
+                
+                print("Sending %s to webpage" % txmsg)
+                self.sendMessage(''.join(txmsg).strip());
+
+                imgtodel = "uploads/%s" % thumbfilename
+
+                imgDelTimeout = 30
+                fileDoesNotExist = True
+
+                if os.path.isfile(imgtodel):
+                    fileDoesNotExist = False
+
+                while (fileDoesNotExist and (imgDelTimeout > 0)):
+                    if os.path.isfile(imgtodel):
+                        fileDoesNotExist = False
+                    else:
+                        print("%s does not exist yet, waiting..." % imgtodel)
+                        imgDelTimeout = imgDelTimeout - 1;
+                        time.sleep(1)
+
+                if fileDoesNotExist == False:                                
+                    print("Deleting %s after 3 secs..." % imgtodel)
+                    time.sleep(3)
+                    # Delete image
+                    os.remove( imgtodel )
+                    print("%s deleted" % imgtodel)
+                else:
+                    print("Timed out waiting for %s to exist!!" % imgtodel)
+                    
+            else:
+                self.stopcamera()
+
+        if cmd[0] == "BUT_C":
+            print("Next picture please!")
+            self.sendMessage(''.join(mmsg).strip())
+
     # Stolen from http://www.cs.rpi.edu/~goldsd/docs/spring2012-csci4220/websocket-py.txt
     def sendMessage(self, s):
         """
         Encode and send a WebSocket message
         """
+        print ("sendMessage: Sending %s" % s)
 
         # Empty message to start with
         message = ""
@@ -584,12 +602,16 @@ def buttona_handler(BUTTON_A_IN):
             else:
                 tx_msg = "BUT_A"
                 print("[handler] Button A was pressed!")
-            queue.put(tx_msg)
+
+            if button_a_last_rise != ts:
+                button_a_last_rise = ts
+                queue.put(tx_msg)
 
         else:
             #print ("Rising edge detected on %d" % BUTTON_A_IN)
             if button_a_last_rise != ts:
                 button_a_last_rise = ts
+                print("Button A last rise = %d" % button_a_last_rise)
                 queue.put("BUT_A_DOWN")
 
 def buttonb_handler(BUTTON_B_IN):

@@ -53,15 +53,6 @@ button_d_last_event = -1
 # set up queue
 queue = Queue.Queue()
 
-# Button handler thread
-#def ButtonHandler():
-#	global run
-#	print("Button thread started!")
-#	while run:
-#		print("run is %r" % run )
-#		time.sleep(5)
-#		q.put("Ben Test Q Msg")
-
 # Global camera object
 #camera = None
 
@@ -83,6 +74,7 @@ class WebSocket(object):
 
     # Constructor
     def __init__(self, client, server, msgqueue):
+        print("WebSocket constructor")
         self.client = client
         self.server = server
         self.handshaken = False
@@ -90,10 +82,11 @@ class WebSocket(object):
         self.data = ""
         self.msgqueue = msgqueue
         self.button_thread = None
+        self.running = False
 
     # Destructor
     def __del__(self):
-		print("WebSocket destructor")
+        print("WebSocket destructor")
 
     def startcamera(self):
         if self.camera is None:
@@ -118,18 +111,16 @@ class WebSocket(object):
             
             try:
                 mmsg = queue.get(block=True, timeout=5)
-                cmd = mmsg.split()
 
                 print( "WebSocket - got thread message: {0} (self.running is {1})".format(mmsg, self.running ))
 
-                self.processMessage(cmd, mmsg)               
+                self.processMessage(mmsg)
 
                 queue.task_done()
                 
             except:
-                ###### I expect the Timeout to happen here. But it is not.
-                print( "Timeout" );
-                pass;                        
+                # todo - if not a timeout exception, print the exception ..?
+                pass;
 
         print("Done with socket")
 
@@ -179,7 +170,7 @@ class WebSocket(object):
                 self.button_thread = Thread(target=self.buttonThread, args=[self.msgqueue])
 
                 print("Starting button thread in class")
-                self.button_thread.daemon = True
+                #self.button_thread.daemon = True
                 self.button_thread.start()
 
             if tkns[0] == "image_upload":
@@ -219,9 +210,7 @@ class WebSocket(object):
 
                         txmsg = "capture %s" % filename
                         #self.msgqueue.put(qmsg)
-
-                        imgtowait = "uploads/%s" % thumbfilename
-                      
+                     
                         time.sleep(2)
 
                         print("Sending %s to webpage" % txmsg)
@@ -287,8 +276,11 @@ class WebSocket(object):
 
             #self.sendMessage(''.join(tx_msg).strip());
 
-    def processMessage(self, cmd, mmsg):
-        print ("processMessage: cmd[0] = %s" % cmd[0])
+    def processMessage(self, mmsg):
+
+        cmd = mmsg.split()
+        
+        print ("processMessage: %s" % mmsg)
       
         if cmd[0] == "IMG_UPLOAD":
             print("New image uploaded: %s" % cmd[1])
@@ -575,8 +567,10 @@ class WebSocketServer(object):
                         conn.close()
                     self.running = False
 
-        print("Telling cls to stop")
-        self.cls.running = False
+        print("Telling all clients to stop")
+        for i in self.connections:
+            print( "Telling connection %d to stop" % i )
+            self.connections[i].running = False
 
 def buttona_handler(BUTTON_A_IN):
     global button_a_last_rise
@@ -715,36 +709,12 @@ def buttond_handler(BUTTON_D_IN):
 #        print("[handler] Button A pressed!")
 #        queue.put(tx_msg)
 
-
-##def buttona_fall_handler(BUTTON_A_IN):
-##    global button_a_last_rise
-##    ts = int(time.time())
-##    diff = ts - button_a_last_rise
-##    if ( diff > 0 ):
-##        if ( diff >= 3 ):
-##            tx_msg = "BUT_A_HOLD"
-##            print("[handler] Button A was held for %d secs" % diff)
-##        else:
-##            tx_msg = "BUT_A"
-##            print("[handler] Button A was pressed!")
-##        queue.put(tx_msg)
-##
-##def buttonb_fall_handler(BUTTON_B_IN):
-##    global button_b_last_rise
-##    ts = int(time.time())
-##    diff = ts - button_b_last_rise
-##    if ( diff > 0 ):
-##        if ( diff >= 3 ):
-##            tx_msg = "BUT_B_HOLD"
-##            print("[handler] Button B was held for %d secs" % diff)
-##        else:
-##            tx_msg = "BUT_B"
-##            print("[handler] Button B was pressed!")
-##        queue.put(tx_msg)
-
-
 # Entry point
 if __name__ == "__main__":
+
+    print ("###########################")
+    print ("### SERVER 4 - RUNNING FROM %s" % os.path.realpath(__file__))
+    print ("###########################")
 
     logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
 
@@ -757,11 +727,11 @@ if __name__ == "__main__":
     upload_server_thread = Thread(target=upload_server.listen, args=[5,queue])
     
     print("Starting main thread")
-    server_thread.daemon = True
+    #server_thread.daemon = True
     server_thread.start()
 
     print("Starting upload thread")
-    upload_server_thread.daemon = True
+    #upload_server_thread.daemon = True
     upload_server_thread.start()
 
     # Register button event handlers
@@ -774,11 +744,9 @@ if __name__ == "__main__":
     # Add SIGINT handler for killing the threads
     def signal_handler(signal, frame):
         logging.info("Caught Ctrl+C, shutting down...")
-        #queue.join()
         server.running = False
         upload_server.running = False
-        print("Terminating cls")
-        server.cls.running = False
+        queue.join()
         print( "Cleaning up GPIO..." )
         gpio.cleanup()
         print("Exiting")

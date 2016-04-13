@@ -568,9 +568,12 @@ class WebSocketServer(object):
                     self.running = False
 
         print("Telling all clients to stop")
-        for i in self.connections:
+        for i in self.listeners:
             print( "Telling connection %d to stop" % i )
-            self.connections[i].running = False
+            self.connections[i].close()
+            del self.connections[i]
+            #self.listeners.remove(i) # Shouldn't need to do this as we're looping round them all anyway
+            
 
 def buttona_handler(BUTTON_A_IN):
     global button_a_last_rise

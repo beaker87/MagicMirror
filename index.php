@@ -18,7 +18,6 @@
 <script src="js/moment-with-locales.min.js"></script>
 <script src="js/config.js"></script>
 <script src="js/rrule.js"></script>
-<script src="js/version/version.js" type="text/javascript"></script>
 <script src="js/calendar/calendar.js" type="text/javascript"></script>
 <script src="js/compliments/compliments.js" type="text/javascript"></script>
 <script src="js/weather/weather.js" type="text/javascript"></script>
@@ -29,7 +28,6 @@
 <script src="js/jssor.slider.mini.js"></script>
 	
 	<script type="text/javascript">
-		var gitHash = '<?php echo trim(`git rev-parse HEAD`) ?>';
 
 		function getWidth() {
 		  if (self.innerHeight) {
@@ -67,8 +65,6 @@
 			var compliment;
 
 			moment.locale(config.lang);
-
-			version.init();
 
 			time.init();
 
@@ -142,10 +138,9 @@
 			}
 		}
 		
-		var c_interval = 3000;
-		
 		function docameraprogress()
 		{
+			var c_interval = 3000;
 			var camicon = $('#camera_icon')
 			
 			camicon.circleProgress({

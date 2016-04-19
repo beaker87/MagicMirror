@@ -211,8 +211,8 @@
 		window.setInterval(function(){
 			if ( sock )
 			{
-				console.log("keepalive");
-				sock.send("keepalive");
+				console.log("ping...");
+				sock.send("ping");
 			}
 		}, 20000);
 
@@ -253,7 +253,11 @@
 					var rx_msg = splitStr[0];
 					//alert("Got message: " + rx_msg);
 					
-					if ( rx_msg == "IMG_UPLOAD" ) // Image uploaded - just need to display it
+					if ( rx_msg == "pong" )
+					{
+						console.log("...pong");
+					}
+					else if ( rx_msg == "IMG_UPLOAD" ) // Image uploaded - just need to display it
 					{
 						var nImgPath="uploads/" + splitStr[1];
 						//$.fancybox.open('3_b.jpg');
@@ -269,20 +273,17 @@
 						// Close the popup again after 5 secs
 						setTimeout(closeNewImagePopup, 5000);
 					}
-					
-					if ( rx_msg == "BUT_A_DOWN" )
+					else if ( rx_msg == "BUT_A_DOWN" )
 					{
 						// Button A pressed down
 						console.log("Button A pressed down...");
 					}
-
-					if ( rx_msg == "BUT_A_HOLD" )
+					else if ( rx_msg == "BUT_A_HOLD" )
 					{
 						// Button A held (released)
 						console.log("Button A released! It was held for > 3 secs");
 					}
-
-					if ( rx_msg == "BUT_B_DOWN" )
+					else if ( rx_msg == "BUT_B_DOWN" )
 					{
 						// Button B pressed down
 						console.log("Button B pressed down...");
@@ -291,28 +292,24 @@
 						docameraprogress();
 						//document.getElementById("camera_icon").style.display = 'block';
 					}
-
-					if ( rx_msg == "BUT_B_HOLD" )
+					else if ( rx_msg == "BUT_B_HOLD" )
 					{
 						// Button B held (released)
 						console.log("Button B released! It was held for > 3 secs");
 						$('#camera_icon').css("display", "none");
 					}
-					
-					if ( rx_msg == "BUT_A" )
+					else if ( rx_msg == "BUT_A" )
 					{
 						CloseSlideshowAndDisplayInterface();
 					}
-					
-					if ( rx_msg == "BUT_B" )
+					else if ( rx_msg == "BUT_B" )
 					{
 						// Button B pressed - camera preview / snapshot
 						//alert("Camera button pressed! Filename = " + splitStr[1]);
 						$('#camera_icon').css("display", "none");
 						resizeImage(splitStr[1]); // Need to resize this image before displaying it
 					}
-					
-					if ( rx_msg == "BUT_C" )
+					else if ( rx_msg == "BUT_C" )
 					{
 						NextPicture();
 					}

@@ -79,23 +79,29 @@
 		
 		var sock;
 		
-		function keepAlive()
-        {
-			sock.send("keepalive");
-		}
+		window.setInterval(function(){
+			if ( sock )
+			{
+				console.log("ping...");
+				sock.send("ping");
+			}
+		}, 20000);
 		
 		window.onload = function()
 		{
-			alert("Creating socket...");
 			sock = new WebSocket("ws://raspberrypi:9998/");
-			sock.onopen = function(e) { alert("opened"); setTimeout(keepAlive, 20000); }
+			sock.onopen = function(e) { /*alert("opened");*/ }
 			sock.onclose = function(e) { alert("closed"); }
 			sock.onmessage = function(e)
 			{
 				//alert("Got message: " + e.data);
 				var splitStr = e.data.split(" ");
 			
-				if( splitStr[0] == "capture" )
+				if ( splitStr[0] == "pong" )
+				{
+					console.log("...pong");
+				}
+				else if( splitStr[0] == "capture" )
 				{
 					resizeImage(splitStr[1])
 				}
@@ -104,27 +110,27 @@
 		
 		function closeConnection()
 		{
-			alert("Going to close connection");
+			console.log("Going to close connection");
 			sock.close();
 		}
 		
 		function startCamera()
 		{
-			alert("Going to start camera!");
+			console.log("Going to start camera!");
 			var cam_msg = "camera start";
 			sock.send(cam_msg);
 		}
 		
 		function stopCamera()
 		{
-			alert("Going to stop camera!");
+			console.log("Going to stop camera!");
 			var cam_msg = "camera stop";
 			sock.send(cam_msg);
 		}
 		
 		function takePicture()
 		{
-			alert("Say cheese!");
+			console.log("Say cheese!");
 			var cam_msg = "camera picture";
 			sock.send(cam_msg);
 		}

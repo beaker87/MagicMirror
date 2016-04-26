@@ -389,6 +389,10 @@ class WebSocket(object):
             print("Next picture please!")
             self.sendMessage(''.join(mmsg).strip())
 
+        if cmd[0] == "BUT_D":
+            print("*** SHUTDOWN ***")
+            os.kill(os.getpid(), signal.SIGINT)
+
     # Stolen from http://www.cs.rpi.edu/~goldsd/docs/spring2012-csci4220/websocket-py.txt
     def sendMessage(self, s):
         """
@@ -569,31 +573,26 @@ class WebSocketServer(object):
                     self.running = False
 
         print("Telling all clients to stop")
-        for i in self.listeners:
-            print( "Telling connection %d to stop" % i )
-            self.connections[i].close()
-            del self.connections[i]
+        #for i in self.listeners:
+            #print( "Telling connection %d to stop" % i )
+            #self.connections[i].close()
+            #del self.connections[i]
             #self.listeners.remove(i) # Shouldn't need to do this as we're looping round them all anyway
             
 
 def buttona_handler(BUTTON_A_IN):
     global button_a_last_rise
     global button_a_last_event
+    
     ts = int(time.time())
 
     button_event = gpio.input(BUTTON_A_IN)
-
-    if ( button_a_last_rise == 0 ):
-        button_a_last_rise = ts
 
     if ( button_a_last_event != button_event ): # Only detect changes
         button_a_last_event = button_event
         if button_event:  
             #print ("Falling edge detected on %d" % BUTTON_A_IN)
             diff = ts - button_a_last_rise
-            #print ("ts is %d" % ts)
-            #print ("button_a_last_rise is %d" % button_a_last_rise)
-            #print ("diff is %d" % diff)
             if ( diff >= 3 ):
                 tx_msg = "BUT_A_HOLD"
                 print("[handler] Button A was held for %d secs" % diff)
@@ -601,117 +600,97 @@ def buttona_handler(BUTTON_A_IN):
                 tx_msg = "BUT_A"
                 print("[handler] Button A was pressed!")
 
-            if button_a_last_rise != ts:
-                button_a_last_rise = ts
-                queue.put(tx_msg)
+            print("PUT: %s" % tx_msg)
+            queue.put(tx_msg)
 
         else:
-            #print ("Rising edge detected on %d" % BUTTON_A_IN)
-            if button_a_last_rise != ts:
-                button_a_last_rise = ts
-                print("Button A last rise = %d" % button_a_last_rise)
-                queue.put("BUT_A_DOWN")
+            button_a_last_rise = ts
+            print("PUT: BUT_A_DOWN")
+            queue.put("BUT_A_DOWN")
 
 def buttonb_handler(BUTTON_B_IN):
     global button_b_last_rise
     global button_b_last_event
+    
     ts = int(time.time())
 
     button_event = gpio.input(BUTTON_B_IN)
-
-    if ( button_b_last_rise == 0 ):
-        button_b_last_rise = ts
 
     if ( button_b_last_event != button_event ): # Only detect changes
         button_b_last_event = button_event
         if button_event:  
             #print ("Falling edge detected on %d" % BUTTON_B_IN)
             diff = ts - button_b_last_rise
-            #print ("ts is %d" % ts)
-            #print ("button_b_last_rise is %d" % button_b_last_rise)
-            #print ("diff is %d" % diff)
             if ( diff >= 3 ):
                 tx_msg = "BUT_B_HOLD"
                 print("[handler] Button B was held for %d secs" % diff)
             else:
                 tx_msg = "BUT_B"
                 print("[handler] Button B was pressed!")
+
+            print("PUT: %s" % tx_msg)
             queue.put(tx_msg)
 
         else:
-            #print ("Rising edge detected on %d" % BUTTON_B_IN)
-            if button_b_last_rise != ts:
-                button_b_last_rise = ts
-                queue.put("BUT_B_DOWN")
+            button_b_last_rise = ts
+            print("PUT: BUT_B_DOWN")
+            queue.put("BUT_B_DOWN")
 
 def buttonc_handler(BUTTON_C_IN):
     global button_c_last_rise
     global button_c_last_event
+    
     ts = int(time.time())
 
     button_event = gpio.input(BUTTON_C_IN)
 
-    if ( button_c_last_rise == 0 ):
-        button_c_last_rise = ts
-
     if ( button_c_last_event != button_event ): # Only detect changes
         button_c_last_event = button_event
         if button_event:  
-            #print ("Falling edge detected on %d" % BUTTON_A_IN)
+            #print ("Falling edge detected on %d" % BUTTON_C_IN)
             diff = ts - button_c_last_rise
-            #print ("ts is %d" % ts)
-            #print ("button_c_last_rise is %d" % button_c_last_rise)
-            #print ("diff is %d" % diff)
             if ( diff >= 3 ):
                 tx_msg = "BUT_C_HOLD"
                 print("[handler] Button C was held for %d secs" % diff)
             else:
                 tx_msg = "BUT_C"
                 print("[handler] Button C was pressed!")
+
+            print("PUT: %s" % tx_msg)
             queue.put(tx_msg)
 
         else:
-            #print ("Rising edge detected on %d" % BUTTON_C_IN)
-            if button_c_last_rise != ts:
-                button_c_last_rise = ts
-                queue.put("BUT_C_DOWN")
+            button_c_last_rise = ts
+            print("PUT: BUT_C_DOWN")
+            queue.put("BUT_C_DOWN")
 
 def buttond_handler(BUTTON_D_IN):
     global button_d_last_rise
     global button_d_last_event
+    
     ts = int(time.time())
 
     button_event = gpio.input(BUTTON_D_IN)
-
-    if ( button_d_last_rise == 0 ):
-        button_d_last_rise = ts
 
     if ( button_d_last_event != button_event ): # Only detect changes
         button_d_last_event = button_event
         if button_event:  
             #print ("Falling edge detected on %d" % BUTTON_D_IN)
             diff = ts - button_d_last_rise
-            #print ("ts is %d" % ts)
-            #print ("button_d_last_rise is %d" % button_d_last_rise)
-            #print ("diff is %d" % diff)
             if ( diff >= 3 ):
                 tx_msg = "BUT_D_HOLD"
                 print("[handler] Button D was held for %d secs" % diff)
             else:
                 tx_msg = "BUT_D"
                 print("[handler] Button D was pressed!")
+
+            print("PUT: %s" % tx_msg)
             queue.put(tx_msg)
 
         else:
-            #print ("Rising edge detected on %d" % BUTTON_D_IN)
-            if button_d_last_rise != ts:
-                button_d_last_rise = ts
-                queue.put("BUT_D_DOWN")
-
-
-#        tx_msg = "BUT_A"
-#        print("[handler] Button A pressed!")
-#        queue.put(tx_msg)
+            button_d_last_rise = ts
+            print("PUT: BUT_D_DOWN")
+            queue.put("BUT_D_DOWN")
 
 # Entry point
 if __name__ == "__main__":
@@ -731,11 +710,11 @@ if __name__ == "__main__":
     upload_server_thread = Thread(target=upload_server.listen, args=[5,queue])
     
     print("Starting main thread")
-    #server_thread.daemon = True
+    server_thread.daemon = True
     server_thread.start()
 
     print("Starting upload thread")
-    #upload_server_thread.daemon = True
+    upload_server_thread.daemon = True
     upload_server_thread.start()
 
     # Register button event handlers
@@ -744,13 +723,12 @@ if __name__ == "__main__":
     gpio.add_event_detect(BUTTON_C_IN, gpio.BOTH, callback=buttonc_handler)
     gpio.add_event_detect(BUTTON_D_IN, gpio.BOTH, callback=buttond_handler)
     
-    
     # Add SIGINT handler for killing the threads
     def signal_handler(signal, frame):
         logging.info("Caught Ctrl+C, shutting down...")
         server.running = False
         upload_server.running = False
-        queue.join()
+        #queue.join()
         print( "Cleaning up GPIO..." )
         gpio.cleanup()
         print("Exiting")

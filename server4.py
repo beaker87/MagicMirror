@@ -34,7 +34,7 @@ BUTTON_B_IN = 27
 BUTTON_C_IN = 22
 BUTTON_D_IN = 23
 
-#set up pins 17 & 27 as inputs
+#set up pins 17, 27, 22 and 23 as inputs
 gpio.setmode(gpio.BCM)
 gpio.setup(BUTTON_A_IN, gpio.IN)
 gpio.setup(BUTTON_B_IN, gpio.IN)
@@ -50,7 +50,7 @@ button_b_last_event = -1
 button_c_last_event = -1
 button_d_last_event = -1
 
-# set up queue
+# set up global queue
 queue = Queue.Queue()
 
 # Global camera object

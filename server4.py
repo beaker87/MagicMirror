@@ -72,6 +72,13 @@ class WebSocket(object):
 
     camera = None
 
+    uploadsDir = os.path.realpath(__file__)
+    k = uploadsDir.rfind("/")
+    uploadsDir = uploadsDir[:k]
+    uploadsDir = "%s/uploads" % uploadsDir
+
+    print("Uploads dir = %s/uploads" % uploadsDir)
+
     # Constructor
     def __init__(self, client, server, msgqueue):
         print("WebSocket constructor")
@@ -82,7 +89,7 @@ class WebSocket(object):
         self.data = ""
         self.msgqueue = msgqueue
         self.button_thread = None
-        self.running = False
+        self.running = False        
 
     # Destructor
     def __del__(self):
@@ -199,7 +206,7 @@ class WebSocket(object):
                         timestamp = int(time.time())
                         filename = 'capture_%d.jpg' % timestamp
                         thumbfilename = 'capture_%d_thumb.jpg' % timestamp
-                        capfilename = "uploads/%s" % filename
+                        capfilename = "{0}/{1}".format(self.uploadsDir, filename)
 
                         self.camera.capture(capfilename)
                         self.stopcamera()
@@ -289,8 +296,8 @@ class WebSocket(object):
             print("Sending %s to webpage" % txm)
             self.sendMessage(txm)
             
-            imgtodel = "uploads/%s" % cmd[1]
-            
+            imgtodel = "{0}/{1}".format(self.uploadsDir, cmd[1])
+
             time.sleep(5)
 
             print("Deleting %s" % imgtodel)
@@ -337,7 +344,9 @@ class WebSocket(object):
                 timestamp = int(time.time())
                 filename = 'capture_%d.jpg' % timestamp
                 thumbfilename = 'capture_%d_thumb.jpg' % timestamp
-                capfilename = "uploads/%s" % filename
+                capfilename = "{0}/{1}".format(self.uploadsDir, filename)
+
+                print("Capturing %s ..." % capfilename)
 
                 # Take the picture
                 self.camera.capture(capfilename)
@@ -357,7 +366,7 @@ class WebSocket(object):
                 print("Sending %s to webpage" % txmsg)
                 self.sendMessage(''.join(txmsg).strip());
 
-                imgtodel = "uploads/%s" % thumbfilename
+                imgtodel = "{0}/{1}".format(self.uploadsDir, thumbfilename)
 
                 imgDelTimeout = 30
                 fileDoesNotExist = True
@@ -391,6 +400,7 @@ class WebSocket(object):
 
         if cmd[0] == "BUT_D":
             print("*** SHUTDOWN ***")
+            self.stopcamera()
             os.kill(os.getpid(), signal.SIGINT)
 
     # Stolen from http://www.cs.rpi.edu/~goldsd/docs/spring2012-csci4220/websocket-py.txt

@@ -1,72 +1,62 @@
-var weather = {
+var todayWeather = {
 	// Default language is Dutch because that is what the original author used
-	lang: config.lang || 'nl',
 	params: config.weather.params || null,
 	iconTable: {
-	
-	/*
-			0 Clear night
-			1 Sunny day
-			2 Partly cloudy (night)
-			3 Partly cloudy (day)
-			4 Not used
-			5 Mist
-			6 Fog
-			7 Cloudy
-			8 Overcast
-			9 Light rain shower (night)
-			10 Light rain shower (day)
-			11 Drizzle
-			12 Light rain
-			13 Heavy rain shower (night)
-			14 Heavy rain shower (day)
-			15 Heavy rain
-			16 Sleet shower (night)
-			17 Sleet shower (day)
-			18 Sleet
-			19 Hail shower (night)
-			20 Hail shower (day)
-			21 Hail
-			22 Light snow shower (night)
-			23 Light snow shower (day)
-			24 Light snow
-			25 Heavy snow shower (night)
-			26 Heavy snow shower (day)
-			27 Heavy snow
-			28 Thunder shower (night)
-			29 Thunder shower (day)
-			30 Thunder
-	*/
-	
-		'01d':'wi-day-sunny',
-		'02d':'wi-day-cloudy',
-		'03d':'wi-cloudy',
-		'04d':'wi-cloudy-windy',
-		'09d':'wi-showers',
-		'10d':'wi-rain',
-		'11d':'wi-thunderstorm',
-		'13d':'wi-snow',
-		'50d':'wi-fog',
-		'01n':'wi-night-clear',
-		'02n':'wi-night-cloudy',
-		'03n':'wi-night-cloudy',
-		'04n':'wi-night-cloudy',
-		'09n':'wi-night-showers',
-		'10n':'wi-night-rain',
-		'11n':'wi-night-thunderstorm',
-		'13n':'wi-night-snow',
-		'50n':'wi-night-alt-cloudy-windy'
+		'0' :'wi-night-clear', //Clear night
+		'1' :'wi-day-sunny', //Sunny day
+		'2' :'wi-night-alt-cloudy', //Partly cloudy (night)
+		'3' :'wi-day-cloudy', //Partly cloudy (day)
+		'4' :'', //Not used
+		'5' :'wi-fog', //Mist
+		'6' :'wi-fog', //Fog
+		'7' :'wi-cloudy', //Cloudy
+		'8' :'wi-day-sunny-overcast', //Overcast
+		'9' :'wi-night-alt-showers', //Light rain shower (night)
+		'10':'wi-showers', // Light rain shower (day)
+		'11':'wi-showers', // Drizzle
+		'12':'wi-showers', // Light rain
+		'13':'wi-night-alt-rain', // Heavy rain shower (night)
+		'14':'wi-rain', // Heavy rain shower (day)
+		'15':'wi-rain', // Heavy rain
+		'16':'wi-night-alt-sleet', // Sleet shower (night)
+		'17':'wi-day-sleet', // Sleet shower (day)
+		'18':'wi-sleet', // Sleet
+		'19':'wi-night-alt-hail', // Hail shower (night)
+		'20':'wi-day-hail', // Hail shower (day)
+		'21':'wi-hail', // Hail
+		'22':'wi-night-alt-snow', // Light snow shower (night)
+		'23':'wi-day-snow', // Light snow shower (day)
+		'24':'wi-snow', // Light snow
+		'25':'wi-night-alt-snow-wind', // Heavy snow shower (night)
+		'26':'wi-day-snow-wind', // Heavy snow shower (day)
+		'27':'wi-snow-wind', // Heavy snow
+		'28':'wi-night-alt-storm-showers', // Thunder shower (night)
+		'29':'wi-day-storm-showers', // Thunder shower (day)
+		'30':'wi-lightning' // Thunder
+	},
+	windDirectionTable: {
+		'N'   : 'wi-from-n',
+		'NNE' : 'wi-from-nne',
+		'NE'  : 'wi-from-ne',
+		'ENE' : 'wi-from-ene',
+		'E'   : 'wi-from-e',
+		'ESE' : 'wi-from-ese',
+		'SE'  : 'wi-from-se',
+		'SSE' : 'wi-from-sse',
+		'S'   : 'wi-from-s',
+		'SSW' : 'wi-from-ssw',
+		'SW'  : 'wi-from-sw',
+		'WSW' : 'wi-from-wsw',
+		'W'   : 'wi-from-w',
+		'WNW' : 'wi-from-wnw',
+		'NW'  : 'wi-from-nw',
+		'NNW' : 'wi-from-nnw'
 	},
 	temperatureLocation: '.temp',
 	windSunLocation: '.windsun',
 	forecastLocation: '.forecast',
-	apiVersion: '2.5',
-	apiBase: 'http://api.openweathermap.org/data/',
-	weatherEndpoint: 'weather',
-	forecastEndpoint: 'forecast/daily',
-	updateInterval: config.weather.interval || 600000,
-	fadeInterval: config.weather.fadeInterval || 1000,
-	intervalId: null
+	updateInterval: 10000,
+	fadeInterval: config.weather.fadeInterval || 1000
 }
 
 /**
@@ -74,32 +64,18 @@ var weather = {
  * @param  {float} temperature The temperature to be rounded
  * @return {float}             The new floating point value
  */
-weather.roundValue = function (temperature) {
+todayWeather.roundValue = function (temperature) {
 	return parseFloat(temperature).toFixed(1);
 }
 
-/**
- * Converts the wind speed (km/h) into the values given by the Beaufort Wind Scale
- * @see http://www.spc.noaa.gov/faq/tornado/beaufort.html
- * @param  {int} kmh The wind speed in Kilometers Per Hour
- * @return {int}     The wind speed converted into its corresponding Beaufort number
- */
-weather.ms2Beaufort = function(ms) {
-	var kmh = ms * 60 * 60 / 1000;
-	var speeds = [1, 5, 11, 19, 28, 38, 49, 61, 74, 88, 102, 117, 1000];
-	for (var beaufort in speeds) {
-		var speed = speeds[beaufort];
-		if (speed > kmh) {
-			return beaufort;
-		}
-	}
-	return 12;
+todayWeather.timeMinsToHours = function(mins) {
+	return (  mins / 60 );
 }
 
 /**
  * Retrieves the current temperature and weather patter from the OpenWeatherMap API
  */
-weather.updateCurrentWeather = function () {
+todayWeather.updateCurrentWeather = function () {
 
 	var weatherURL = 'http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/json/' + config.weather.location + '?res=3hourly&key=' + config.weather.metapikey;
 
@@ -111,123 +87,89 @@ weather.updateCurrentWeather = function () {
 		dataType: 'json',
 		data: '',
 		success: function (data) {
-
-			// Get current temperature, wind speed, wind gust, weather type
-			var _temp = data.SiteRep.DV.Location.Period[0].Rep[0].T;
-			var _time = data.SiteRep.DV.Location.Period[0].Rep[0].$;
-			var _windspeed = data.SiteRep.DV.Location.Period[0].Rep[0].S;
-			var _windgust = data.SiteRep.DV.Location.Period[0].Rep[0].G;
-			var _type = data.SiteRep.DV.Location.Period[0].Rep[0].W;
 			
-			console.log ( "temp = " + _temp + " at " + _time + ", wind speed = " + _windspeed + ", wind gust = " + _windgust + ", type = " + _type);
-			console.log ( "number available time periods on this day = " + data.SiteRep.DV.Location.Period.length );
+			var forecastHTML = '';
 			
-			/*
-			Significant weather as a code:
-			NA Not available
-			0 Clear night
-			1 Sunny day
-			2 Partly cloudy (night)
-			3 Partly cloudy (day)
-			4 Not used
-			5 Mist
-			6 Fog
-			7 Cloudy
-			8 Overcast
-			9 Light rain shower (night)
-			10 Light rain shower (day)
-			11 Drizzle
-			12 Light rain
-			13 Heavy rain shower (night)
-			14 Heavy rain shower (day)
-			15 Heavy rain
-			16 Sleet shower (night)
-			17 Sleet shower (day)
-			18 Sleet
-			19 Hail shower (night)
-			20 Hail shower (day)
-			21 Hail
-			22 Light snow shower (night)
-			23 Light snow shower (day)
-			24 Light snow
-			25 Heavy snow shower (night)
-			26 Heavy snow shower (day)
-			27 Heavy snow
-			28 Thunder shower (night)
-			29 Thunder shower (day)
-			30 Thunder
-			*/
+			var nEntries = 0;
 			
-			
-			var _temperatureMin = this.roundValue( 3 ), // TODO
-				_temperatureMax = this.roundValue( 50 ), // TODO
-				_wind = this.roundValue( 6 ), // TODO
-				_iconClass = 'wi-thunderstorm'; //this.iconTable[data.weather[0].icon]; // TODO
+			for (var i = 0, count = data.SiteRep.DV.Location.Period[0].Rep.length; i < count; i++)
+			{
+				// Get current temperature, wind speed, wind gust, weather type
+				var _temp = data.SiteRep.DV.Location.Period[0].Rep[i].T; // done
+				var _feelstemp = data.SiteRep.DV.Location.Period[0].Rep[i].F; // done
+				var _time = this.timeMinsToHours(data.SiteRep.DV.Location.Period[0].Rep[i].$);
+				var _windspeed = data.SiteRep.DV.Location.Period[0].Rep[i].S; // done
+				var _windgust = data.SiteRep.DV.Location.Period[0].Rep[i].G; // done
+				var _winddirection = data.SiteRep.DV.Location.Period[0].Rep[i].D; // done (ish)
+				var _type = data.SiteRep.DV.Location.Period[0].Rep[i].W; // done
+				
+				//console.log ( "number available time periods on this day = " + data.SiteRep.DV.Location.Period[0].Rep.length );
+				
+				// Find the first one that applies to us
+				//if (  )
+				
+				var _iconClass = this.iconTable[_type];
+				
+				var displayItem = false;
+				
+				if ( i < ( count - 1 ) )
+				{
+					var _now = moment().format('HH');
+				
+					if ( _time > _now )
+					{
+						displayItem = true;
+					}
+					else if ( ( _time <= _now ) && ( this.timeMinsToHours(data.SiteRep.DV.Location.Period[0].Rep[i + 1].$) >= _now ) )
+					{
+						displayItem = true;
+					}
+				}
+				else
+				{
+					displayItem = true; // Always display the last one available
+				}
+				
+				console.log ( "temp = " + _temp + " at " + _time + ":00, wind speed = " + _windspeed + " @ " + _winddirection + ", wind gust = " + _windgust + ", type = " + _type + ", display = " + displayItem);
+				
+				if ( displayItem )
+				{
+					if ( nEntries == 0 )
+					{
+						var _icon = '<span class="icon ' + _iconClass + ' dimmed wi"></span>';
+						var _newTempHtml = _time + ':00<br />' + _icon + '' + _temp + '&deg; <span class="dimmed">' + _feelstemp + '&deg;</span>';
+					
+						$(this.temperatureLocation).updateWithText(_newTempHtml, this.fadeInterval);
 
-			var _icon = '<span class="icon ' + _iconClass + ' dimmed wi"></span>';
+						var _now = moment().format('HH:mm');
+							//_sunrise = moment(data.sys.sunrise*1000).format('HH:mm'),
+							//_sunset = moment(data.sys.sunset*1000).format('HH:mm');
 
-			var _newTempHtml = _icon + '' + _temp + '&deg;';
+						var _newWindHtml = 'Today<br /><span class="wi wi-strong-wind xdimmed"></span> ' + _windspeed + '/' + _windgust + '<span class="wi ' + this.windDirectionTable[_winddirection] + ' xdimmed"></span>';
+						var _newSunHtml = '<span class="wi wi-sunrise xdimmed"></span> ' + 'sunrise'; // TODO
 
-			$(this.temperatureLocation).updateWithText(_newTempHtml, this.fadeInterval);
+						/*if (_sunrise < _now && _sunset > _now) {
+							_newSunHtml = '<span class="wi wi-sunset xdimmed"></span> ' + _sunset;
+						}*/
 
-			var _now = moment().format('HH:mm');
-				//_sunrise = moment(data.sys.sunrise*1000).format('HH:mm'),
-				//_sunset = moment(data.sys.sunset*1000).format('HH:mm');
+						$(this.windSunLocation).updateWithText(_newWindHtml, this.fadeInterval);
+					}
+					else
+					{
+						var _icon = '<span class="icon-small ' + _iconClass + ' dimmed wi"></span>';
+						var _newTempHtml = _time + ':00 ' + _icon + '' + _temp + '&deg; <span class="dimmed">' + _feelstemp + '&deg;</span>';
 
-			var _newWindHtml = '<span class="wi wi-strong-wind xdimmed"></span> ' + this.ms2Beaufort(_wind),
-				_newSunHtml = '<span class="wi wi-sunrise xdimmed"></span> ' + 'sunrise'; // TODO
-
-			/*if (_sunrise < _now && _sunset > _now) {
-				_newSunHtml = '<span class="wi wi-sunset xdimmed"></span> ' + _sunset;
-			}*/
-
-			$(this.windSunLocation).updateWithText(_newWindHtml + ' ' + _newSunHtml, this.fadeInterval);
-			
-
-		}.bind(this),
-		error: function () {
-
-		}
-	});
-
-}
-
-/**
- * Updates the 5 Day Forecast from the OpenWeatherMap API
- */
-weather.updateWeatherForecast = function () {
-
-	$.ajax({
-		type: 'GET',
-		url: weather.apiBase + '/' + weather.apiVersion + '/' + weather.forecastEndpoint,
-		data: weather.params,
-		success: function (data) {
-
-			var _opacity = 1,
-				_forecastHtml = '';
-
-			_forecastHtml += '<table class="forecast-table">';
-
-			for (var i = 0, count = data.list.length; i < count; i++) {
-
-				var _forecast = data.list[i];
-
-				_forecastHtml += '<tr style="opacity:' + _opacity + '">';
-
-				_forecastHtml += '<td class="day">' + moment(_forecast.dt, 'X').format('ddd') + '</td>';
-				_forecastHtml += '<td class="icon-small ' + this.iconTable[_forecast.weather[0].icon] + '"></td>';
-				_forecastHtml += '<td class="temp-max">' + this.roundValue(_forecast.temp.max) + '</td>';
-				_forecastHtml += '<td class="temp-min">' + this.roundValue(_forecast.temp.min) + '</td>';
-
-				_forecastHtml += '</tr>';
-
-				_opacity -= 0.155;
-
+						forecastHTML += _newTempHtml + '<br />';
+					}
+					
+					nEntries ++;
+				}
 			}
-
-			_forecastHtml += '</table>';
-
-			$(this.forecastLocation).updateWithText(_forecastHtml, this.fadeInterval);
+			
+			$(this.forecastLocation).updateWithText(forecastHTML, this.fadeInterval);
+			
+			
+			
 
 		}.bind(this),
 		error: function () {
@@ -237,12 +179,8 @@ weather.updateWeatherForecast = function () {
 
 }
 
-weather.init = function () {
-
-	if (this.params.lang === undefined) {
-		this.params.lang = this.lang;
-	}
-
+todayWeather.init = function ()
+{
 	if (this.params.cnt === undefined) {
 		this.params.cnt = 5;
 	}
@@ -250,9 +188,10 @@ weather.init = function () {
 	this.updateCurrentWeather();
 	//this.updateWeatherForecast();	
 	
+	/*
 	this.intervalId = setInterval(function () {
 		this.updateCurrentWeather();
 		//this.updateWeatherForecast();
-	}.bind(this), this.updateInterval);
+	}.bind(this), this.updateInterval);*/
 
 }

@@ -4,7 +4,8 @@
 	<style type="text/css">
 		<?php include('css/main.css') ?>
 	</style>
-	<link rel="stylesheet" type="text/css" href="css/weather-icons.css">
+	<link rel="stylesheet" type="text/css" href="css/weather-icons.min.css">
+	<link rel="stylesheet" type="text/css" href="css/weather-icons-wind.min.css">
 	
 	<script src="js/jquery.js"></script>
 
@@ -21,6 +22,7 @@
 <script src="js/calendar/calendar.js" type="text/javascript"></script>
 <script src="js/compliments/compliments.js" type="text/javascript"></script>
 <script src="js/weather/weather.js" type="text/javascript"></script>
+<script src="js/weather/weather_met.js" type="text/javascript"></script>
 <script src="js/time/time.js" type="text/javascript"></script>
 <!--<script src="js/news/news.js" type="text/javascript"></script>-->
 <script src="js/main.js?nocache=<?php echo md5(microtime()) ?>"></script>
@@ -57,6 +59,8 @@
 		  }
 		}
 
+		var weatherState = 1;
+		
 		function loadInterface()
 		{
 			var eventList = [];
@@ -72,7 +76,7 @@
 
 			//compliments.init();
 
-			weather.init();
+			todayWeather.init();
 			
 			var ghour = moment().hour();
 
@@ -214,8 +218,20 @@
 				console.log("ping...");
 				sock.send("ping");
 			}
+			
+			if ( weatherState == 0 )
+			{
+				todayWeather.init();
+				weatherState = 1;
+			}
+			else
+			{
+				weather.init();
+				weatherState = 0;
+			}
+			
 		}, 20000);
-
+		
 		window.onload = function() {
 			
 			document.getElementById("slider1_container").style.width=getWidth();
@@ -325,7 +341,9 @@
 <body>
 
 	<div class="top left"><div class="date small dimmed"></div><div class="time"></div><div class="calendar xxsmall"></div></div>
-	<div class="top right"><div class="windsun small dimmed"></div><div class="temp"></div><div class="forecast small dimmed"></div></div>
+	<div class="top right"><div class="windsun small dimmed"></div>
+	<div class="temp"></div>
+	<div class="forecast small dimmed"></div></div>
 	<div class="bottom center-hor"><div id="map" class="map"></div></div>
 	<div class="lower-third center-hor"><div class="compliment light"></div></div>
 	<!--<div class="bottom center-hor"><div class="news medium"></div></div>-->

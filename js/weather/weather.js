@@ -168,9 +168,10 @@ weather.init = function () {
 	this.updateCurrentWeather();
 	this.updateWeatherForecast();
 	
+	/*
 	this.intervalId = setInterval(function () {
 		this.updateCurrentWeather();
 		this.updateWeatherForecast();
-	}.bind(this), this.updateInterval);
+	}.bind(this), this.updateInterval);*/
 
 }

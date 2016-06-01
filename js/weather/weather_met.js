@@ -163,7 +163,7 @@ todayWeather.updateCurrentWeather = function () {
 					if ( nEntries == 0 )
 					{
 						var _icon = '<span class="icon ' + _iconClass + ' dimmed wi"></span>';
-						var _newTempHtml = '<span class="wi ' + this.timeTable[_time] + '"></span>' + _icon + '' + _temp + '&deg; <span class="dimmed">' + _feelstemp + '&deg;</span>';
+						var _newTempHtml = '<span class="wi dimmed ' + this.timeTable[_time] + '"></span> ' + _icon + '' + _temp + '&deg; <span class="dimmed">' + _feelstemp + '&deg;</span>';
 					
 						$(this.temperatureLocation).updateWithText(_newTempHtml, this.fadeInterval);
 
@@ -171,8 +171,8 @@ todayWeather.updateCurrentWeather = function () {
 							//_sunrise = moment(data.sys.sunrise*1000).format('HH:mm'),
 							//_sunset = moment(data.sys.sunset*1000).format('HH:mm');
 
-						var _newWindHtml = 'Today<br /><span class="wi wi-strong-wind xdimmed"></span> ' + _windspeed + '/' + _windgust + '<span class="wi ' + this.windDirectionTable[_winddirection] + ' xdimmed"></span>';
-						var _newSunHtml = '<span class="wi wi-sunrise xdimmed"></span> ' + 'sunrise'; // TODO
+						var _newWindHtml = 'Today<br /><span class="wi wi-strong-wind xdimmed"></span> ' + _windspeed + '/' + _windgust + ' <span class="wi wi-wind ' + this.windDirectionTable[_winddirection] + ' dimmed"></span>';
+						//var _newSunHtml = '<span class="wi wi-sunrise xdimmed"></span> ' + 'sunrise'; // TODO
 
 						/*if (_sunrise < _now && _sunset > _now) {
 							_newSunHtml = '<span class="wi wi-sunset xdimmed"></span> ' + _sunset;
@@ -182,10 +182,13 @@ todayWeather.updateCurrentWeather = function () {
 					}
 					else
 					{
-						var _icon = '<span class="wi icon-small ' + _iconClass + ' dimmed wi"></span>';
-						var _newTempHtml = '<span class="wi ' + this.timeTable[_time] + '"></span>' + _icon + '' + _temp + '&deg; <span class="dimmed">' + _feelstemp + '&deg;</span>';
+						var _icon = '<span class="wi icon-small ' + _iconClass + '"></span>';
+						var _newForecastTempHtml = '<span class="wi ' + this.timeTable[_time] + '"></span>' + _icon + ' ' + _temp + '&deg; <span class="dimmed">' + _feelstemp + '&deg;</span>';
 
-						forecastHTML += _newTempHtml + '<br />';
+						// Add wind info
+						_newForecastTempHtml += ' <span class="wi wi-strong-wind xdimmed"></span> ' + '<span class="dimmed">' + _windspeed + '/' + _windgust + '</span> <span class="wi wi-wind dimmed ' + this.windDirectionTable[_winddirection] + '"></span>';
+						
+						forecastHTML += _newForecastTempHtml + '<br />';
 					}
 					
 					nEntries ++;

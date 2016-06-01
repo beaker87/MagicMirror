@@ -52,6 +52,32 @@ var todayWeather = {
 		'NW'  : 'wi-from-nw',
 		'NNW' : 'wi-from-nnw'
 	},
+	timeTable: {
+		'0' : 'wi-time-12',
+		'1' : 'wi-time-1',
+		'2' : 'wi-time-2',
+		'3' : 'wi-time-3',
+		'4' : 'wi-time-4',
+		'5' : 'wi-time-5',
+		'6' : 'wi-time-6',
+		'7' : 'wi-time-7',
+		'8' : 'wi-time-8',
+		'9' : 'wi-time-9',
+		'10' : 'wi-time-10',
+		'11' : 'wi-time-11',
+		'12' : 'wi-time-12',
+		'13' : 'wi-time-1',
+		'14' : 'wi-time-2',
+		'15' : 'wi-time-3',
+		'16' : 'wi-time-4',
+		'17' : 'wi-time-5',
+		'18' : 'wi-time-6',
+		'19' : 'wi-time-7',
+		'20' : 'wi-time-8',
+		'21' : 'wi-time-9',
+		'22' : 'wi-time-10',
+		'23' : 'wi-time-11'
+	},
 	temperatureLocation: '.temp',
 	windSunLocation: '.windsun',
 	forecastLocation: '.forecast',
@@ -137,7 +163,7 @@ todayWeather.updateCurrentWeather = function () {
 					if ( nEntries == 0 )
 					{
 						var _icon = '<span class="icon ' + _iconClass + ' dimmed wi"></span>';
-						var _newTempHtml = _time + ':00<br />' + _icon + '' + _temp + '&deg; <span class="dimmed">' + _feelstemp + '&deg;</span>';
+						var _newTempHtml = '<span class="wi ' + this.timeTable[_time] + '"></span>' + _icon + '' + _temp + '&deg; <span class="dimmed">' + _feelstemp + '&deg;</span>';
 					
 						$(this.temperatureLocation).updateWithText(_newTempHtml, this.fadeInterval);
 
@@ -156,8 +182,8 @@ todayWeather.updateCurrentWeather = function () {
 					}
 					else
 					{
-						var _icon = '<span class="icon-small ' + _iconClass + ' dimmed wi"></span>';
-						var _newTempHtml = _time + ':00 ' + _icon + '' + _temp + '&deg; <span class="dimmed">' + _feelstemp + '&deg;</span>';
+						var _icon = '<span class="wi icon-small ' + _iconClass + ' dimmed wi"></span>';
+						var _newTempHtml = '<span class="wi ' + this.timeTable[_time] + '"></span>' + _icon + '' + _temp + '&deg; <span class="dimmed">' + _feelstemp + '&deg;</span>';
 
 						forecastHTML += _newTempHtml + '<br />';
 					}

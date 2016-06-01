@@ -133,7 +133,7 @@ weather.updateWeatherForecast = function () {
 				_forecastHtml += '<tr style="opacity:' + _opacity + '">';
 
 				_forecastHtml += '<td class="day">' + moment(_forecast.dt, 'X').format('ddd') + '</td>';
-				_forecastHtml += '<td class="icon-small ' + this.iconTable[_forecast.weather[0].icon] + '"></td>';
+				_forecastHtml += '<td class="wi icon-small ' + this.iconTable[_forecast.weather[0].icon] + '"></td>';
 				_forecastHtml += '<td class="temp-max">' + this.roundValue(_forecast.temp.max) + '</td>';
 				_forecastHtml += '<td class="temp-min">' + this.roundValue(_forecast.temp.min) + '</td>';
 

@@ -47,7 +47,11 @@
             <ul class="gallery-wrapper thumbnails">
                 <?php foreach ($galleryArray['images'] as $image): ?>
                     <li class="">
+<?php /*
                         <a href="<?php echo html_entity_decode($image['file_path']); ?>" title="<?php echo $image['file_title']; ?>" class="thumbnail" rel="colorbox">
+*/ ?>
+                        <a href="image.php?img=<?php echo html_entity_decode($image['file_path']); ?>" title="<?php echo $image['file_title']; ?>" class="thumbnail">
+
                             <img src="<?php echo $image['thumb_path']; ?>" alt="<?php echo $image['file_title']; ?>" />
                         </a>
                     </li>

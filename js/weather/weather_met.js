@@ -146,7 +146,7 @@ todayWeather.updateCurrentWeather = function () {
 					{
 						displayItem = true;
 					}
-					else if ( ( _time <= _now ) && ( this.timeMinsToHours(data.SiteRep.DV.Location.Period[0].Rep[i + 1].$) >= _now ) )
+					else if ( ( _time <= _now ) && ( this.timeMinsToHours(data.SiteRep.DV.Location.Period[0].Rep[i + 1].$) > _now ) )
 					{
 						displayItem = true;
 					}

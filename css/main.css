@@ -168,6 +168,9 @@ body, html {
 	width: 50px;
 	text-align: right;
 }
+.forecast-table .timeicon {
+	width: 30px;
+}
 
 .forecast-table .temp-max 
 {

@@ -182,17 +182,34 @@ todayWeather.updateCurrentWeather = function () {
 					}
 					else
 					{
-						var _icon = '<span class="wi icon-small ' + _iconClass + '"></span>';
-						var _newForecastTempHtml = '<span class="wi ' + this.timeTable[_time] + '"></span>' + _icon + ' ' + _temp + '&deg; <span class="dimmed">' + _feelstemp + '&deg;</span>';
+						if ( nEntries == 1 )
+						{
+							forecastHTML += '<table class="forecast-table"><tr>';
+						}
+						
+						/*
+							_forecastHtml += '<td class="day">' + moment(_forecast.dt, 'X').format('ddd') + '</td>';
+							_forecastHtml += '<td class="wi icon-small ' + this.iconTable[_forecast.weather[0].icon] + '"></td>';
+							_forecastHtml += '<td class="temp-max">' + this.roundValue(_forecast.temp.max) + '</td>';
+							_forecastHtml += '<td class="temp-min">' + this.roundValue(_forecast.temp.min) + '</td>';
+						*/
+						
+						var _icon = '<td class="wi icon-small timeicon ' + _iconClass + '"></td>';
+						var _newForecastTempHtml = '<td class="wi timeicon ' + this.timeTable[_time] + '"></td>' + _icon + '<td>' + _temp + '&deg;</td><td class="dimmed">' + _feelstemp + '&deg;</td>';
 
 						// Add wind info
-						_newForecastTempHtml += ' <span class="wi wi-strong-wind xdimmed"></span> ' + '<span class="dimmed">' + _windspeed + '/' + _windgust + '</span> <span class="wi wi-wind dimmed ' + this.windDirectionTable[_winddirection] + '"></span>';
+						_newForecastTempHtml += '<td class="wi wi-strong-wind xdimmed"></td> ' + '<td class="dimmed">' + _windspeed + '/' + _windgust + '</td><td class="wi wi-wind dimmed ' + this.windDirectionTable[_winddirection] + '"></td>';
 						
-						forecastHTML += _newForecastTempHtml + '<br />';
+						forecastHTML += _newForecastTempHtml + '</tr>';
 					}
 					
 					nEntries ++;
 				}
+			}
+			
+			if ( nEntries > 0 )
+			{
+				forecastHTML += '</table>';
 			}
 			
 			$(this.forecastLocation).updateWithText(forecastHTML, this.fadeInterval);

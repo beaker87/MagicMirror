@@ -393,9 +393,10 @@ function initMap()
 
 <?php
 
-//$files = glob('uploads/*');
+$images = glob("uploads/*");
+shuffle($images);
 
-foreach (glob("uploads/*") as $filename) {
+foreach ($images as $filename) {
     //echo "$filename size " . filesize($filename) . "\n";
 	echo "<div><img u=\"image\" src=\"$filename\" /></div>\n";
 }

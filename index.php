@@ -60,6 +60,7 @@
 		}
 
 		var weatherState = 1;
+		var weatherIntervalID = null;
 		
 		function loadInterface()
 		{
@@ -77,6 +78,19 @@
 			//compliments.init();
 
 			todayWeather.init();
+			weatherIntervalID = setInterval(function () {
+				if ( weatherState == 0 )
+				{
+					todayWeather.init();
+					weatherState = 1;
+				}
+				else
+				{
+					weather.init();
+					weatherState = 0;
+				}
+			}.bind(this), 20000);
+			
 			
 			var ghour = moment().hour();
 
@@ -218,18 +232,6 @@
 				console.log("ping...");
 				sock.send("ping");
 			}
-			
-			if ( weatherState == 0 )
-			{
-				todayWeather.init();
-				weatherState = 1;
-			}
-			else
-			{
-				weather.init();
-				weatherState = 0;
-			}
-			
 		}, 20000);
 		
 		window.onload = function() {

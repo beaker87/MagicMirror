@@ -300,6 +300,9 @@
 					{
 						// Button A held (released)
 						console.log("Button A released! It was held for > 3 secs");
+						
+						// Refresh page
+						window.location.href = 'index.php';
 					}
 					else if ( rx_msg == "BUT_B_DOWN" )
 					{

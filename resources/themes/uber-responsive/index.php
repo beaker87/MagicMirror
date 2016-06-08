@@ -28,7 +28,7 @@
         <div class="navbar navbar-inverse">
             <div class="navbar-inner">
                 <div class="container">
-                    <div class="brand">UberGallery</div>
+                    <div class="brand">Gallery</div>
                 </div>
             </div>
         </div>
@@ -102,7 +102,7 @@
             </div>
         <?php endif; ?>
 
-        <p class="credit">Powered by, <a href="http://www.ubergallery.net">UberGallery</a></p>
+        <!--<p class="credit">Powered by <a href="http://www.ubergallery.net">UberGallery</a></p>-->
 
     </div>
 

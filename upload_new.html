@@ -64,7 +64,7 @@
         background-size: cover;
         background-position: center;
 	}
-    #gallery_slide {
+    #upload_slide {
 		/*background: #ff0000;*/
 	}
     #camera_slide {
@@ -364,16 +364,19 @@
 					</select>
 				</div>
 			</div>
-			<div id="gallery_slide" class="swiper-slide">
-					<div id="gallery_icon">
+			<div id="upload_slide" class="swiper-slide">
+					<div id="upload_icon">
 						<form id="uploadform" enctype="multipart/form-data" method="post" action="savetofile.php">
-							<div id="gallery">
+							<div id="upload">
 								<label class="custom-upload" for="fileToUpload">&nbsp;</label><br />
 								<input type="file" name="fileToUpload" id="fileToUpload" onchange="fileSelected();" accept="image/*" capture="camera" />
 							</div>
 						</form>
 					</div>
 					<div id="upload_progress" style="margin:50px;">Press the icon to upload or take a picture from your device</div>
+			</div>
+			<div id="gallery_slide" class="swiper-slide">
+				<iframe src="gallery.php" frameborder="0" allowtransparency="true" width="85%" height="85%"></iframe>
 			</div>
 		</div>
 		<!-- Add Pagination -->

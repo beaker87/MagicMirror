@@ -54,7 +54,7 @@ function binComplete(evt) {
 
 <div style="height:100%; width:100%;">
 <img src="<?php echo $_GET['img']; ?>" style="width:100%; height:100%; object-fit: contain;" />
-<div style="position:absolute; top: 10px; left: 140px;"><img src="images/trash.png" onclick="uploadFile();" /></div>
+<div style="position:absolute; top: 10px; left: 70px;"><img src="images/trash.png" onclick="uploadFile();" /></div>
 <div style="position:absolute; top: 10px; left: 10px;"><img src="images/back.png" onclick="goBack();" /></div>
 </div>
 <br />

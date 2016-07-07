@@ -54,6 +54,12 @@
         -webkit-align-items: center;
         align-items: center;*/
     }
+	
+	.scroll-wrapper {
+		position: relative;
+		margin: 0 auto 0; 
+		height: 85%;
+	}
 	.parallax-bg {
 		position: absolute;
         left: 0;
@@ -376,7 +382,9 @@
 					<div id="upload_progress" style="margin:50px;">Press the icon to upload or take a picture from your device</div>
 			</div>
 			<div id="gallery_slide" class="swiper-slide">
-				<iframe src="gallery.php" frameborder="0" allowtransparency="true" width="85%" height="85%" style="overflow-x: hidden; overflow-y: scroll;"></iframe>
+				<div class="scroll-wrapper">
+					<iframe src="gallery.php" frameborder="0" allowtransparency="true" width="85%" height="85%" style="overflow-x: hidden; overflow-y: scroll;" scrolling="auto"></iframe>
+				</div>
 			</div>
 		</div>
 		<!-- Add Pagination -->
